@@ -1,0 +1,58 @@
+package com.bee.remote.spring;
+
+import com.bee.common.constants.Constants;
+import com.bee.common.util.ClassUtils;
+import com.bee.remote.invoker.config.InvokerConfig;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.springframework.beans.factory.FactoryBean;
+
+/**
+ * Created by jeoy.zhou on 12/27/15.
+ */
+public class ProxyBeanFactory implements FactoryBean<Object> {
+
+    private String serviceName;
+    private String interfaceName;
+    private String serialize = Constants.PROTO;
+    private String callMethod = Constants.CALL_SYNC;
+    private Integer timeOut= Constants.CLIENT_CALL_TIMEOUT;
+    private Integer retries = Constants.CLIENT_RETRIES;
+    private boolean isTimeOutRetry = Constants.CLIENT_TIMEOUT_RETRY;
+    private String protocol = Constants.PROTOCOL_DEFAULT;
+
+    private Object obj;
+
+    private Class<?> objType;
+
+    private void init() throws ClassNotFoundException {
+        if(StringUtils.isBlank(interfaceName))
+            throw new IllegalArgumentException("ProxyBeanFactory: init argument[interfaceName] is null");
+        this.objType = ClassUtils.loadClass(interfaceName);
+        InvokerConfig<?> invokerConfig = new InvokerConfig(this.objType, this.serviceName, this.callMethod,
+                this.serialize, this.retries, this.timeOut, this.isTimeOutRetry, this.protocol);
+        this.obj = ServiceFactory.getService(invokerConfig);
+        // TODO
+    }
+
+    @Override
+    public Object getObject() throws Exception {
+        return this.obj;
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return this.objType.getClass();
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+}

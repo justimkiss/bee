@@ -1,0 +1,17 @@
+package com.bee.config.file;
+
+import com.bee.config.ConfigManager;
+import com.bee.config.loader.ConfigManagerLoader;
+import org.junit.Test;
+
+/**
+ * Created by jeoy.zhou on 12/7/15.
+ */
+public class PropertiesFileConfigManagerTest {
+
+    @Test
+    public void testPropertiesFile() {
+        ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+        System.out.println(configManager);
+    }
+}
