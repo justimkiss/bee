@@ -46,7 +46,7 @@ public final class InvokerStaticsHolder {
     public static void flowIn(InvokerContext invokerContext) {
         if (!needRecordRequest(invokerContext.getRequest())) return;
         AtomicLong request = InvokerStaticsHolder.getCapacity(invokerContext);
-        request.incrementAndGet();
+        invokerContext.getRequest().setSeq(request.incrementAndGet());
     }
 
     private static boolean needRecordRequest(InvocationRequest invocationRequest) {

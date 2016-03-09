@@ -89,7 +89,7 @@ public class CuratorUtils {
         return true;
     }
 
-    private static String convertServicePath(String servicePath) {
+    public static String convertServicePath(String servicePath) {
         if(servicePath.startsWith(Constants.PATH_SEPARATOR)) {
             return Constants.PATH_SEPARATOR + escape(servicePath.substring(1));
         }

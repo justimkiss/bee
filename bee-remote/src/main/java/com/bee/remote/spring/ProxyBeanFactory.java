@@ -33,7 +33,6 @@ public class ProxyBeanFactory implements FactoryBean<Object> {
         InvokerConfig<?> invokerConfig = new InvokerConfig(this.objType, this.serviceName, this.callMethod,
                 this.serialize, this.retries, this.timeOut, this.isTimeOutRetry, this.protocol);
         this.obj = ServiceFactory.getService(invokerConfig);
-        // TODO
     }
 
     @Override
@@ -43,7 +42,7 @@ public class ProxyBeanFactory implements FactoryBean<Object> {
 
     @Override
     public Class<?> getObjectType() {
-        return this.objType.getClass();
+        return this.objType;
     }
 
     @Override
@@ -54,5 +53,69 @@ public class ProxyBeanFactory implements FactoryBean<Object> {
     @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public String getInterfaceName() {
+        return interfaceName;
+    }
+
+    public void setInterfaceName(String interfaceName) {
+        this.interfaceName = interfaceName;
+    }
+
+    public String getSerialize() {
+        return serialize;
+    }
+
+    public void setSerialize(String serialize) {
+        this.serialize = serialize;
+    }
+
+    public String getCallMethod() {
+        return callMethod;
+    }
+
+    public void setCallMethod(String callMethod) {
+        this.callMethod = callMethod;
+    }
+
+    public Integer getTimeOut() {
+        return timeOut;
+    }
+
+    public void setTimeOut(Integer timeOut) {
+        this.timeOut = timeOut;
+    }
+
+    public Integer getRetries() {
+        return retries;
+    }
+
+    public void setRetries(Integer retries) {
+        this.retries = retries;
+    }
+
+    public boolean isTimeOutRetry() {
+        return isTimeOutRetry;
+    }
+
+    public void setIsTimeOutRetry(boolean isTimeOutRetry) {
+        this.isTimeOutRetry = isTimeOutRetry;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 }

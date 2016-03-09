@@ -1,8 +1,11 @@
 package com.bee.remote.common.codec.domain;
 
+import com.alibaba.fastjson.JSON;
 import com.bee.common.constants.Constants;
 import com.bee.remote.invoker.config.InvokerConfig;
 import com.bee.remote.invoker.domain.InvokerContext;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * Created by jeoy.zhou on 2/2/16.
@@ -167,5 +170,17 @@ public class DefaultRequest implements InvocationRequest{
 
     public void setContext(Object context) {
         this.context = context;
+    }
+
+    @Override
+    public String toString() {
+        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("serialize", serialize).append("seq", seq).append("msgType", messageType)
+                .append("callType", callType).append("timeout", timeout).append("url", serviceName)
+                .append("method", methodName).append("created", createMillisTime);
+        if (Constants.REQUEST_LOG_PARAMETERS) {
+            builder.append("parameters", JSON.toJSONString(parameters));
+        }
+        return builder.toString();
     }
 }

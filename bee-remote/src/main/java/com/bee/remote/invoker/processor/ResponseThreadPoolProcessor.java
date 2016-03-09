@@ -29,8 +29,8 @@ public class ResponseThreadPoolProcessor extends AbstractResponseProcessor{
     }
 
     public ResponseThreadPoolProcessor(int corePoolSize, int maxPoolSize, int queueSize) {
-        THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE,
-                30, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(QUEUE_SIZE), new ThreadPoolExecutor.CallerRunsPolicy());
+        THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(corePoolSize, maxPoolSize,
+                30, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(queueSize), new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     @Override

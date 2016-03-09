@@ -1,15 +1,18 @@
 package com.bee.remote.invoker.utils;
 
 import com.bee.common.constants.Constants;
+import com.bee.common.exception.RpcException;
 import com.bee.remote.common.codec.SerializerFactory;
 import com.bee.remote.common.codec.domain.InvocationRequest;
 import com.bee.remote.common.codec.domain.InvocationResponse;
+import com.bee.remote.exception.ApplicationException;
 import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.callback.CallBack;
 import com.bee.remote.invoker.callback.sync.ServiceFuture;
 import com.bee.remote.invoker.config.InvokerConfig;
 import com.bee.remote.invoker.domain.InvokerContext;
 import com.bee.remote.invoker.domain.RemoteInvocationBean;
+import com.bee.remote.invoker.exception.RemoteInvocationException;
 import com.bee.remote.invoker.service.ServiceInvocationRepository;
 import org.apache.log4j.Logger;
 
@@ -52,12 +55,40 @@ public final class InvokerUtils {
     public static InvocationRequest createRemoteCallRequest(InvokerContext invokerContext) {
         InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
         InvocationRequest request = invokerContext.getRequest();
-        if (request != null) {
+        if (request == null) {
             request = SerializerFactory.getSerializer(invokerConfig.getSerialize()).newRequest(invokerContext);
             invokerContext.setRequest(request);
         }
-        request.setSeq(REQUEST_SEQ.incrementAndGet());
+//        request.setSeq(REQUEST_SEQ.incrementAndGet());
         return request;
+    }
+
+    public static RpcException toRpcException(InvocationResponse response) {
+        Exception e = null;
+        Object returnVal = response.getReturn();
+        if (returnVal == null) {
+            return new RpcException(response.getCause());
+        } else if (returnVal instanceof Exception) {
+            e = (Exception) returnVal;
+        } else {
+            e = new RemoteInvocationException(returnVal.toString());
+        }
+        if (!(e instanceof RpcException)) {
+            return new RemoteInvocationException(e);
+        }
+        return (RpcException) e;
+    }
+
+    public static ApplicationException toApplicationException(InvocationResponse response) {
+        Object returnVal = response.getReturn();
+        if (returnVal == null) {
+            return new ApplicationException(response.getCause());
+        } else if (returnVal instanceof RpcException) {
+            return new ApplicationException((RpcException) returnVal);
+        } else if (returnVal instanceof RuntimeException) {
+            return new ApplicationException((RuntimeException) returnVal);
+        }
+        return new ApplicationException(returnVal.toString());
     }
 
     public static InvocationResponse createFutureResponse(ServiceFuture serviceFuture) {

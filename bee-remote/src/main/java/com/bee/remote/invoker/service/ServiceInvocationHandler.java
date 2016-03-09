@@ -6,6 +6,7 @@ import com.bee.remote.common.codec.domain.InvocationResponse;
 import com.bee.remote.common.process.filter.ServiceInvocationOperation;
 import com.bee.remote.invoker.config.InvokerConfig;
 import com.bee.remote.invoker.domain.DefaultInvokerContext;
+import com.bee.remote.invoker.utils.InvokerUtils;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationHandler;
@@ -51,16 +52,16 @@ public class ServiceInvocationHandler implements InvocationHandler {
                 method.getReturnType());
     }
 
-    private Object handleResult(InvocationResponse response, Class<?> resultType) {
+    private Object handleResult(InvocationResponse response, Class<?> resultType) throws Exception{
         Object obj = response.getReturn();
         if(obj != null) {
             int messageType = response.getMessageType();
             if(messageType == Constants.MESSAGE_TYPE_SERVICE) {
                 return obj;
-            } else if(messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
-
             } else if(messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-
+                throw InvokerUtils.toApplicationException(response);
+            } else if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
+                throw InvokerUtils.toRpcException(response);
             }
             throw new InvalidParameterException("ServiceInvocationHandler: unsupported response with message type ==> " + messageType);
         }

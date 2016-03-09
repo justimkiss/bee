@@ -1,12 +1,15 @@
 package com.bee.remote.invoker.cluster;
 
 import com.bee.common.constants.Constants;
+import com.bee.common.exception.NetworkException;
 import com.bee.remote.common.codec.domain.InvocationResponse;
 import com.bee.remote.common.process.filter.ServiceInvocationOperation;
 import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.ClientManager;
 import com.bee.remote.invoker.config.InvokerConfig;
 import com.bee.remote.invoker.domain.InvokerContext;
+import com.bee.remote.invoker.exception.ServiceUnavailableException;
+import com.bee.remote.invoker.utils.InvokerUtils;
 import org.apache.commons.lang.SerializationException;
 import org.apache.log4j.Logger;
 
@@ -26,6 +29,7 @@ public class FastFailCluster implements Cluster {
     @Override
     public InvocationResponse invoke(ServiceInvocationOperation serviceInvocationOperation, InvokerContext invokerContext) throws Exception {
         InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
+        InvokerUtils.createRemoteCallRequest(invokerContext);
         int retry = 0;
         if (!invokerConfig.isTimeOutRetry())
             retry = 1;
@@ -36,7 +40,12 @@ public class FastFailCluster implements Cluster {
                 Client remoteClient = CLIENT_MANAGER.getClient(invokerConfig, invokerContext);
                 invokerContext.setClient(remoteClient);
                 return serviceInvocationOperation.invoke(invokerContext);
-            } catch (Exception e) {
+            } catch (ServiceUnavailableException e) {
+                throw e;
+            } catch (NetworkException e) {
+                if (index >= retry) {
+                    throw e;
+                }
                 LOGGER.error("FastFailCluster: invoke error; retry time: " + (index + 1), e);
             }
         }

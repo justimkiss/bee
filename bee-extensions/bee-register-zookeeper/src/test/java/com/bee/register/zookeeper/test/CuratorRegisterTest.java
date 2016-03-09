@@ -19,8 +19,7 @@ import org.junit.Test;
 public class CuratorRegisterTest extends AbstractTest{
 
     private static final String connectStr = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
-//    private static final String connectStr = "127.0.0.1:2181";
-    @Test
+//    @Test
     public void testCurator() throws Exception {
 //        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
 //        CuratorFramework client = CuratorFrameworkFactory.newClient(connectStr, 5000, 3000, retryPolicy);
@@ -36,7 +35,7 @@ public class CuratorRegisterTest extends AbstractTest{
         Thread.sleep(100000);
     }
 
-    @Test
+//    @Test
     public void testListenerCache() throws Exception {
         CuratorFramework client = CuratorFrameworkFactory.builder()
                 .connectString(connectStr)

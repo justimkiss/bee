@@ -19,10 +19,10 @@ public class ConnectInfo {
     private int port;
     private ConcurrentMap<String, Integer> serviceNames = Maps.newConcurrentMap();
 
-    public ConnectInfo(String host, Integer port, Integer weight) {
+    public ConnectInfo(String serviceName, String host, Integer port, Integer weight) {
         this.host = host;
         this.port = port;
-        serviceNames.putIfAbsent(host, weight);
+        serviceNames.putIfAbsent(serviceName, weight);
     }
 
     public void addServiceNames(Map<String, Integer> serviceNames) {

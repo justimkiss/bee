@@ -41,10 +41,10 @@ public class RegisterListenManager {
      * @param port
      * @param providerChangeEnum
      */
-    public static void providerChanged(String serviceName, String host, int port, ProviderChangeEnum providerChangeEnum) {
+    public static void providerChanged(String serviceName, String host, int port, int weight, ProviderChangeEnum providerChangeEnum) {
         List<ServiceProviderChangeListener> listeners = Lists.newArrayList(SERVICE_PROVIDER_CHANGE_LISTENER_LIST);
         for(ServiceProviderChangeListener listener : listeners) {
-            listener.providerChange(new ServiceProviderChangeEvent(host, port, serviceName, providerChangeEnum));
+            listener.providerChange(new ServiceProviderChangeEvent(host, port, serviceName, weight, providerChangeEnum));
         }
     }
 

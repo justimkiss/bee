@@ -7,6 +7,6 @@ import org.springframework.test.context.ContextConfiguration;
  * Created by jeoy.zhou on 12/24/15.
  */
 @RunWith(JUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:conf/spring/spring.xml"})
+@ContextConfiguration(locations = {"classpath:config/spring/spring-server.xml"})
 public abstract class AbstractTest {
 }

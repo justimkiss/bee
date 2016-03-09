@@ -20,7 +20,7 @@ public class ClusterFactory {
     }
 
     public static Cluster selectCluster(InvokerContext invokerContext) {
-        String key = invokerContext.getInvokerConfig().getCallType();
+        String key = invokerContext.getInvokerConfig().getCluster();
         Cluster cluster = CLUSTER_MAP.get(key);
         if (cluster == null) cluster = CLUSTER_MAP.get(Constants.CLUSTER_FAILFAST);
         return cluster;

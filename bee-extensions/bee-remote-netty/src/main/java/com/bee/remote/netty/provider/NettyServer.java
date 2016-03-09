@@ -40,7 +40,9 @@ public class NettyServer extends AbstractServer{
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000);
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000)
+                .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, Constants.DEFAULT_WRITE_BUFFER_HIGH_WATER)
+                .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, Constants.DEFAULT_WRITE_BUFFER_LOW_WATER);
     }
 
     @Override

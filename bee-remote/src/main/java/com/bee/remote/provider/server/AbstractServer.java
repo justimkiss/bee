@@ -32,7 +32,8 @@ public abstract class AbstractServer implements Server {
 
     @Override
     public void start(ServiceConfig serviceConfig) {
-        LOGGER.info(String.format("%s: ready start, config: %s", this.getClass().getName(), serviceConfig));
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info(String.format("%s: ready start, config: %s", this.getClass().getName(), serviceConfig));
         this.requestProcessor = RequestProcessorFactory.selectProcessor(serviceConfig);
         if (this.requestProcessor != null) {
             this.requestProcessor.start();

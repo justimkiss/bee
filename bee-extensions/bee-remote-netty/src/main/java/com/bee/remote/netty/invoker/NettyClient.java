@@ -13,6 +13,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class NettyClient extends AbstractClient {
 
     private static final Logger LOGGER = Logger.getLogger(NettyClient.class);
-    private static final int CONNECT_TIMEOUT = 15;
+    private static final int CONNECT_TIMEOUT = 15000;
 
     private ConnectInfo connectInfo;
     private String host;
@@ -46,14 +47,15 @@ public class NettyClient extends AbstractClient {
 
         this.bootstrap = new Bootstrap();
         this.workGroup = new NioEventLoopGroup();
-        this.bootstrap.group(this.workGroup);
-        this.bootstrap.option(ChannelOption.TCP_NODELAY, true);
-        this.bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        this.bootstrap.option(ChannelOption.SO_REUSEADDR, true);
-        this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT);
-        this.bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, Constants.DEFAULT_WRITE_BUFFER_HIGH_WATER);
-        this.bootstrap.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, Constants.DEFAULT_WRITE_BUFFER_LOW_WATER);
-        this.bootstrap.handler(new NettyClientChannelInitializer(this));
+        this.bootstrap.group(this.workGroup)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.SO_REUSEADDR, true)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT)
+                .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, Constants.DEFAULT_WRITE_BUFFER_HIGH_WATER)
+                .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, Constants.DEFAULT_WRITE_BUFFER_LOW_WATER)
+                .handler(new NettyClientChannelInitializer(this));
 
     }
 

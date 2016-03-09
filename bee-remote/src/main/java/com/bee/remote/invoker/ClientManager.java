@@ -8,6 +8,7 @@ import com.bee.register.listen.event.ProviderChangeEnum;
 import com.bee.register.listen.event.ServiceProviderChangeEvent;
 import com.bee.register.listen.listener.ServiceProviderChangeListener;
 import com.bee.remote.common.codec.domain.InvocationContext;
+import com.bee.remote.common.domain.Disposable;
 import com.bee.remote.invoker.config.InvokerConfig;
 import com.bee.remote.invoker.domain.ConnectInfo;
 import com.bee.remote.invoker.exception.ServiceUnavailableException;
@@ -30,12 +31,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jeoy.zhou on 2/2/16.
  */
-public class ClientManager {
+public class ClientManager implements Disposable{
 
     private static final Logger LOGGER = Logger.getLogger(ClientManager.class);
     /**
@@ -61,12 +61,13 @@ public class ClientManager {
      * value: address客户端
       */
     private static final ConcurrentHashMap<String, Client> ALL_SERVICE_CLIENTS = new ConcurrentHashMap<String, Client>();
-    private static final ClientManager CLIENT_MANAGER = new ClientManager();
     private static final ClientRouteManager CLIENT_ROUTE_MANAGER = new DefaultClientRouteManager();
     private final ServiceProviderChangeListener SERVICE_PROVIDER_CHANGE_LISTENER = new ClientManagerServiceProviderChangeListener();
     private static final ScheduledThreadPoolExecutor HEART_BEAT_THREAD_POOL = new ScheduledThreadPoolExecutor(1);
     private static final ScheduledThreadPoolExecutor RECONNECT_THREAD_POOL = new ScheduledThreadPoolExecutor(1);
     private static final ScheduledThreadPoolExecutor PROVIDER_AVAILABLE_THREAD_POOL = new ScheduledThreadPoolExecutor(1);
+    private static final ClientManager CLIENT_MANAGER = new ClientManager();
+    private DefaultClusterListener defaultClusterListener;
 
     private static final long HEART_BEAT_INTERVAL = 1l;
     private static final long RECONNECT_INTERVAL = 1l;
@@ -76,11 +77,12 @@ public class ClientManager {
         HeartBeatTask heartBeatTask = new HeartBeatTask(SERVICE_CLIENTS);
         ReconnectTask reconnectTask = new ReconnectTask(SERVICE_CLIENTS);
         ProviderAvailableTask providerAvailableTask = new ProviderAvailableTask(SERVICE_CLIENTS);
-        HEART_BEAT_THREAD_POOL.scheduleAtFixedRate(heartBeatTask, HEART_BEAT_INTERVAL, HEART_BEAT_INTERVAL, TimeUnit.SECONDS);
-        RECONNECT_THREAD_POOL.scheduleAtFixedRate(reconnectTask, RECONNECT_INTERVAL, RECONNECT_INTERVAL, TimeUnit.SECONDS);
-        PROVIDER_AVAILABLE_THREAD_POOL.scheduleAtFixedRate(providerAvailableTask, PROVIDER_INTERVAL, PROVIDER_INTERVAL, TimeUnit.SECONDS);
+        //TODO 去除注释
+//        HEART_BEAT_THREAD_POOL.scheduleAtFixedRate(heartBeatTask, HEART_BEAT_INTERVAL, HEART_BEAT_INTERVAL, TimeUnit.SECONDS);
+//        RECONNECT_THREAD_POOL.scheduleAtFixedRate(reconnectTask, RECONNECT_INTERVAL, RECONNECT_INTERVAL, TimeUnit.SECONDS);
+//        PROVIDER_AVAILABLE_THREAD_POOL.scheduleAtFixedRate(providerAvailableTask, PROVIDER_INTERVAL, PROVIDER_INTERVAL, TimeUnit.SECONDS);
 
-        DefaultClusterListener defaultClusterListener = new DefaultClusterListener(SERVICE_CLIENTS, ALL_SERVICE_CLIENTS);
+        defaultClusterListener = new DefaultClusterListener(SERVICE_CLIENTS, ALL_SERVICE_CLIENTS);
         ClusterListenerManager.getInstance().registerListener(defaultClusterListener);
         ClusterListenerManager.getInstance().registerListener(reconnectTask);
         RegisterListenManager.addListener(SERVICE_PROVIDER_CHANGE_LISTENER);
@@ -112,11 +114,11 @@ public class ClientManager {
             }
             if(StringUtils.isBlank(ip) || port < 0) continue;
             int weight = RegisterManager.getInstance().getServiceWeight(serviceName, addressStr);
-            RegisterListenManager.providerChanged(serviceName, ip, port, ProviderChangeEnum.ADD);
+            RegisterListenManager.providerChanged(serviceName, ip, port, weight, ProviderChangeEnum.ADD);
         }
     }
 
-    public Client getClient(InvokerConfig<?> invokerConfig, InvocationContext invocationContext) {
+    public Client getClient(InvokerConfig<?> invokerConfig, InvocationContext invocationContext) throws ServiceUnavailableException{
         List<Client> clients = getClientList(invokerConfig.getUrl());
         if (LOGGER.isDebugEnabled())
             for (Client client : clients)
@@ -191,7 +193,7 @@ public class ClientManager {
      */
     private void cacheServiceHostInfo(HostInfo hostInfo) {
         if(!validHostInfo(hostInfo)) {
-            LOGGER.error("ClientManager: cacheServiceHostInfo param[%s] is invalid");
+            LOGGER.error(String.format("ClientManager: cacheServiceHostInfo param[%s] is invalid", hostInfo));
             return;
         }
         Set<HostInfo> set = SERVICE_ADDRESS_CACHE.get(hostInfo.getServiceName());
@@ -212,7 +214,7 @@ public class ClientManager {
      */
     private void removeCacheServiceHostInfo(HostInfo hostInfo) {
         if(!simpleValidHostInfo(hostInfo)) {
-            LOGGER.error("ClientManager: removeCacheServiceHostInfoo param[%s] is invalid");
+            LOGGER.error(String.format("ClientManager: removeCacheServiceHostInfo param[%s] is invalid", hostInfo));
             return;
         }
         Set<HostInfo> cache = SERVICE_ADDRESS_CACHE.get(hostInfo.getServiceName());
@@ -258,7 +260,7 @@ public class ClientManager {
             if(event == null || event.getProviderChangeEnum() == null) return;
             HostInfo hostInfo = new HostInfo(event.getServiceName(), event.getHost(), event.getPort(), event.getWeight());
             if(event.getProviderChangeEnum().equals(ProviderChangeEnum.ADD)) {
-                ConnectInfo connectInfo = new ConnectInfo(event.getHost(), event.getPort(), event.getWeight());
+                ConnectInfo connectInfo = new ConnectInfo(event.getServiceName(), event.getHost(), event.getPort(), event.getWeight());
                 ClusterListenerManager.getInstance().addConnect(connectInfo);
                 // chche service info
                 cacheServiceHostInfo(hostInfo);
@@ -269,5 +271,21 @@ public class ClientManager {
         }
     }
 
-
+    @Override
+    public void destroy() throws Exception {
+        ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
+        if (clusterListenerManager instanceof Disposable) {
+            ((Disposable) clusterListenerManager).destroy();
+        }
+        if (CLIENT_ROUTE_MANAGER instanceof  Disposable) {
+            ((Disposable) CLIENT_ROUTE_MANAGER).destroy();
+        }
+        if (HEART_BEAT_THREAD_POOL != null)
+            HEART_BEAT_THREAD_POOL.shutdown();
+        if (RECONNECT_THREAD_POOL != null)
+            RECONNECT_THREAD_POOL.shutdown();
+        if (PROVIDER_AVAILABLE_THREAD_POOL != null)
+            PROVIDER_AVAILABLE_THREAD_POOL.shutdown();
+        defaultClusterListener.destroy();
+    }
 }

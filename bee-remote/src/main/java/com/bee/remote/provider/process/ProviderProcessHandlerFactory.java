@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by jeoy.zhou on 2/29/16.
  */
-public final class ProviderProcessHandlerFactory implements Disposable {
+public final class ProviderProcessHandlerFactory {
 
     private static final Logger LOGGER = Logger.getLogger(ProviderProcessHandlerFactory.class);
 
@@ -72,8 +72,7 @@ public final class ProviderProcessHandlerFactory implements Disposable {
         return serviceInvocationOperation;
     }
 
-    @Override
-    public void destroy() throws Exception {
+    public static void destroy() throws Exception {
         for (AbstractProviderOperation providerOperation : bizOperationList) {
             if (providerOperation instanceof Disposable) {
                 try {

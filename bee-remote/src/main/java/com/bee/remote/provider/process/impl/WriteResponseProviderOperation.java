@@ -22,7 +22,7 @@ public class WriteResponseProviderOperation extends AbstractProviderOperation {
         ProviderChannel channel = providerContext.getChannel();
         InvocationRequest request = providerContext.getRequest();
         InvocationResponse response = getProviderOperation().invoke(providerContext);
-        if (request.getMessageType() == Constants.CALL_BACK_TYPE_REPLY) {
+        if (request.getCallType() == Constants.CALL_BACK_TYPE_REPLY) {
             channel.write(response);
         }
         return response;

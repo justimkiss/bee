@@ -12,6 +12,9 @@ public final class Constants {
     public static final Pattern BEE_SERVICE_URL_PATTERN = Pattern.compile("(^[a-zA-Z][a-zA-Z.]{8,})_(\\d[\\d.]*\\d|\\d)$");
 //    public static final Pattern BEE_SERVICE_URL_PATTERN = Pattern.compile("(^http://[\\w.]+/[\\w]+/[\\w]+)_(\\d[\\d.]*\\d|\\d)$");
 
+    public static final int CPU_NUM = Runtime.getRuntime().availableProcessors();
+    public static final int DEFAULT_THREAD_NUM = CPU_NUM + 1;
+
     // interfaceUtils
     public static final String DEFAULT_INTERFACEUTILS_PACKAGE = "com.bee";
 
@@ -85,5 +88,11 @@ public final class Constants {
 
     //  requestTimeOutThread
     public static final float DEFAULT_CANCEL_RADIO = 1f;
+
+    //InvocationTimeoutThread mills
+    public static final long DEFAULT_INVOCATION_CHECK_INTERVAL = 1000;
+
+    //defaultRequest
+    public static final boolean REQUEST_LOG_PARAMETERS = true;
 
 }

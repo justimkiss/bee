@@ -7,6 +7,7 @@ import com.bee.remote.exception.NetTimeoutException;
 import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.callback.CallBack;
 import com.bee.remote.invoker.callback.CallFuture;
+import com.bee.remote.invoker.utils.InvokerUtils;
 import org.apache.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
@@ -25,21 +26,19 @@ public class CallBackFuture implements CallBack, CallFuture {
     protected InvocationRequest request;
     protected Client client;
 
-    protected Object object = new Object();
-
     @Override
     public void callBack(InvocationResponse invocationResponse) {
         this.response = invocationResponse;
     }
 
     @Override
-    public void setRequest(InvocationRequest invocationRequest) {
+    public void setRequest(InvocationRequest request) {
         this.request = request;
     }
 
     @Override
     public void completed() {
-        synchronized (object) {
+        synchronized (this) {
             this.done = true;
             if (this.response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
                 this.success = true;
@@ -55,7 +54,7 @@ public class CallBackFuture implements CallBack, CallFuture {
 
     @Override
     public InvocationResponse get(long timeoutMillis) throws InterruptedException {
-        synchronized (object) {
+        synchronized (this) {
             long start = System.currentTimeMillis();
             while (!this.done) {
                 long timeoutLimit = timeoutMillis - (System.currentTimeMillis() - start);
@@ -64,14 +63,14 @@ public class CallBackFuture implements CallBack, CallFuture {
                             String.format("request timeout, current time: %d \r\nrequest: %s\r\nhost: %s",
                                     System.currentTimeMillis(), this.request, this.client.getAddress()));
                 } else {
-                    object.wait();
+                    this.wait();
                 }
             }
             // TODO
             // processContext()
             if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
                 LOGGER.error(String.format("remote call exception\r\nrequest: %s\r\nhost: %s\r\nresponse: %s",
-                        this.request, this.client.getAddress(), this.response));
+                        this.request, this.client.getAddress(), this.response), InvokerUtils.toRpcException(response));
             }
         }
         return this.response;
@@ -84,7 +83,11 @@ public class CallBackFuture implements CallBack, CallFuture {
 
     @Override
     public boolean cancel() {
-        return false;
+        synchronized (this) {
+            this.canceled = true;
+            this.notifyAll();
+        }
+        return canceled;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.bee.remote.provider.listener;
 
+import com.bee.remote.invoker.InvokerBootStrap;
 import com.bee.remote.provider.ProviderBootStrap;
 import com.bee.remote.spring.ServiceFactory;
 import org.apache.log4j.Logger;
@@ -13,17 +14,24 @@ public class ShutdownHookListener implements Runnable{
 
     @Override
     public void run() {
-        LOGGER.info("ShutdownHookListener: shutdown begin...");
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info("ShutdownHookListener: shutdown begin...");
         try {
             ServiceFactory.closeAllServices();
         } catch (Exception e) {
             LOGGER.error("ShutdownHookListener: ServiceFactory.closeAllServices error", e);
         }
         try {
+            InvokerBootStrap.destroy();
+        } catch (Exception e) {
+            LOGGER.error("ShutdownHookListener: InvokerBootStrap.destroy error", e);
+        }
+        try {
             ProviderBootStrap.shutdown();
         } catch (Exception e) {
             LOGGER.error("error with shutdown hook", e);
         }
-        LOGGER.info("ShutdownHookListener: shutdown begin...");
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info("ShutdownHookListener: shutdown begin...");
     }
 }

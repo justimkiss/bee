@@ -1,5 +1,9 @@
 package com.bee.remote.common.codec.domain;
 
+import com.bee.common.constants.Constants;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -109,5 +113,16 @@ public class DefaultResponse implements InvocationResponse{
     @Override
     public void setSerialize(byte serialize) {
         this.serialize = serialize;
+    }
+
+    @Override
+    public String toString() {
+        if (this.messageType == Constants.MESSAGE_TYPE_SERVICE) {
+            return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
+                    .append("seq", seq).append("messageType", messageType).toString();
+        } else {
+            return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
+                    .append("seq", seq).append("messageType", messageType).append("return", returnVal).toString();
+        }
     }
 }

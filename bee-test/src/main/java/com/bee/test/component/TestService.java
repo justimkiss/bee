@@ -11,4 +11,8 @@ public class TestService {
     public void test() {
         System.out.println("this is a test service");
     }
+
+    public void print(String content) {
+        System.out.println("Test service: " + content);
+    }
 }

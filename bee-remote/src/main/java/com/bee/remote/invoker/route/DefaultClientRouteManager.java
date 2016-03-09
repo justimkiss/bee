@@ -24,7 +24,7 @@ public class DefaultClientRouteManager implements ClientRouteManager{
     private Random random = new Random();
 
     @Override
-    public Client getClient(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest invocationRequest) {
+    public Client getClient(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest invocationRequest) throws ServiceUnavailableException{
         List<Client> clientList = Lists.newArrayList(clients);
         Client client = null;
         while ((client = selectBestClient(clientList, invokerConfig, invocationRequest)) != null) {

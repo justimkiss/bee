@@ -1,5 +1,6 @@
 package com.bee.remote.invoker.listener;
 
+import com.bee.remote.common.domain.Disposable;
 import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.ClientSelector;
 import com.bee.remote.invoker.domain.ConnectInfo;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * Created by jeoy.zhou on 2/16/16.
  */
-public class DefaultClusterListener implements ClusterListener{
+public class DefaultClusterListener implements ClusterListener, Disposable{
 
     private static final Logger LOGGER = Logger.getLogger(DefaultClusterListener.class);
 
@@ -93,5 +94,10 @@ public class DefaultClusterListener implements ClusterListener{
             }
         }
         return false;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+
     }
 }

@@ -1,12 +1,13 @@
 package com.bee.remote.provider.service;
 
 import com.bee.common.constants.Constants;
-import com.bee.common.util.VersionUtils;
+import com.bee.common.exception.RegisterException;
 import com.bee.config.ConfigManager;
 import com.bee.config.loader.ConfigManagerLoader;
 import com.bee.register.RegisterManager;
 import com.bee.remote.provider.ProviderBootStrap;
 import com.bee.remote.provider.config.ProviderConfig;
+import com.bee.remote.provider.config.ServiceConfig;
 import com.bee.remote.provider.server.Server;
 import com.bee.remote.provider.service.method.ServiceMethodFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -27,16 +28,17 @@ public final class ServiceProviderFactory {
 
 
     public static <T> void addService(ProviderConfig<T> providerConfig) throws Exception {
-        LOGGER.info(String.format("ServiceProviderFactory: add Server[%s]", providerConfig));
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info(String.format("ServiceProviderFactory: add Server[%s]", providerConfig));
         // confirm the default service by serviceName
         ProviderConfig<?> defaultProvider = null;
-        if((defaultProvider = serviceConfigCache.get(providerConfig.getServiceName())) != null) {
-            if(VersionUtils.compareVersion(providerConfig.getVersion(), defaultProvider.getVersion()) > 0) {
-                serviceConfigCache.put(providerConfig.getServiceName(), providerConfig);
-            }
-        } else {
-            serviceConfigCache.put(providerConfig.getServiceName(), providerConfig);
-        }
+//        if((defaultProvider = serviceConfigCache.get(providerConfig.getServiceName())) != null) {
+//            if(VersionUtils.compareVersion(providerConfig.getVersion(), defaultProvider.getVersion()) > 0) {
+//                serviceConfigCache.put(providerConfig.getServiceName(), providerConfig);
+//            }
+//        } else {
+//            serviceConfigCache.put(providerConfig.getServiceName(), providerConfig);
+//        }
         serviceConfigCache.put(providerConfig.getUrl(), providerConfig);
         T service = providerConfig.getService();
         if(service instanceof BeeInitialize) {
@@ -70,6 +72,28 @@ public final class ServiceProviderFactory {
                     Constants.COLON_SYMBOL + server.getServiceConfig().getPort();
             RegisterManager.getInstance().registerService(providerConfig.getUrl(), serverAddress, Constants.DEFAULT_WEIGHT);
         }
+    }
+
+    public static void cancelAllServices() throws RegisterException {
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info("close all services");
+        for (ProviderConfig<?> providerConfig : serviceConfigCache.values()) {
+            if (providerConfig == null) continue;
+            cancelService(providerConfig);
+        }
+    }
+
+    public synchronized static <T> void cancelService(ProviderConfig<T> providerConfig) throws RegisterException {
+        String url = providerConfig.getUrl();
+        if (!serviceConfigCache.containsKey(url)) return;
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info("try to cancel service from registry:" + providerConfig);
+        ServiceConfig serviceConfig = providerConfig.getServiceConfig();
+        String address = serviceConfig.getIp() + Constants.COLON_SYMBOL + serviceConfig.getPort();
+        RegisterManager.getInstance().unregisterService(providerConfig.getUrl(), address);
+        // TODO
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info("canceled from registry:" + providerConfig);
     }
 
 

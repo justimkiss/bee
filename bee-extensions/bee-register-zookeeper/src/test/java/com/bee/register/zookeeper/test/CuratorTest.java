@@ -1,8 +1,7 @@
 package com.bee.register.zookeeper.test;
 
+import com.bee.register.RegisterManager;
 import com.bee.register.zookeeper.AbstractTest;
-import com.bee.register.zookeeper.CuratorRegister;
-import org.junit.Test;
 
 import java.util.List;
 
@@ -11,26 +10,17 @@ import java.util.List;
  */
 public class CuratorTest extends AbstractTest{
 
-    @Test
+//    @Test
     public void curatorTest() throws InterruptedException {
-        CuratorRegister register = new CuratorRegister();
-        register.init();
-        String serviceName = "/test";
-        String serviceAddress = "127.0.0.1:8080";
-//        register.registerService(serviceName, serviceAddress);
-
-
+        RegisterManager registerManager = RegisterManager.getInstance();
+        registerManager.unregisterService("com.bee.remote.test.component.testService_1.0.0", "10.227.24.70:3344");
         Thread.sleep(Integer.MAX_VALUE);
-
     }
 
-
-    @Test
+//    @Test
     public void getChildrenList() throws Exception {
-        CuratorRegister register = new CuratorRegister();
-        register.init();
-
-        List<String> nodes = register.getServiceAddressList("/memberservice");
+        RegisterManager registerManager = RegisterManager.getInstance();
+        List<String> nodes = registerManager.getServiceAddressList("/memberservice");
         for(String node : nodes) {
             System.out.println(node);
         }

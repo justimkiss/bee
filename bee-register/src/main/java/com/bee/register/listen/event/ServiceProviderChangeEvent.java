@@ -1,5 +1,6 @@
 package com.bee.register.listen.event;
 
+import com.bee.common.constants.Constants;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -17,10 +18,7 @@ public class ServiceProviderChangeEvent implements Serializable{
     private ProviderChangeEnum providerChangeEnum;
 
 
-    /**
-     *  负载权重（暂时不使用）
-     */
-    private int weight;
+    private int weight = Constants.DEFAULT_WEIGHT;
 
     public ServiceProviderChangeEvent() {}
 
@@ -31,7 +29,7 @@ public class ServiceProviderChangeEvent implements Serializable{
         this.providerChangeEnum = providerChangeEnum;
     }
 
-    public ServiceProviderChangeEvent(String host, int port, String serviceName, ProviderChangeEnum providerChangeEnum, int weight) {
+    public ServiceProviderChangeEvent(String host, int port, String serviceName, int weight, ProviderChangeEnum providerChangeEnum) {
         this(host, port, serviceName, providerChangeEnum);
         this.weight = weight;
     }

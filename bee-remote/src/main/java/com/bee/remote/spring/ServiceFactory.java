@@ -1,6 +1,7 @@
 package com.bee.remote.spring;
 
 import com.bee.common.entity.UrlConfig;
+import com.bee.common.exception.RegisterException;
 import com.bee.common.exception.RpcException;
 import com.bee.common.util.UrlUtils;
 import com.bee.config.ConfigManager;
@@ -52,7 +53,8 @@ public class ServiceFactory {
             LOGGER.error("ServiceFactory: no provider config");
             return;
         }
-        LOGGER.info("ServiceFactory: add Service ==> " + providerConfig);
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info("ServiceFactory: add Service ==> " + providerConfig);
         try {
             ServiceFactory.verify(providerConfig);
             ServiceProviderFactory.addService(providerConfig);
@@ -99,8 +101,12 @@ public class ServiceFactory {
         return (T) service;
     }
 
-    public static void closeAllServices() {
-
+    public static void closeAllServices() throws RpcException{
+        try {
+            ServiceProviderFactory.cancelAllServices();
+        } catch (RegisterException e) {
+            throw new RpcException("error while close all services", e);
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ import com.bee.common.constants.Constants;
 import com.bee.common.exception.RegisterException;
 import com.bee.register.Register;
 import com.bee.register.zookeeper.utils.CuratorUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -52,9 +53,6 @@ public class CuratorRegister implements Register {
     public String name() {
         return "zookeeper";
     }
-
-
-
 
     /**
      * 获取指定服务的provider
@@ -143,9 +141,31 @@ public class CuratorRegister implements Register {
             } else {
                 this.client.deleteNode(servicePath);
             }
+            clear(serviceName);
         } catch (Exception e) {
             LOGGER.error(String.format("CuratorRegister: unregisterService failed to unregister serviceName[%s] serverAddress[%s]", serviceName, serverAddress));
             throw new RegisterException(e);
+        }
+    }
+
+    /**
+     *
+     * @param serviceName
+     * @throws Exception
+     */
+    private void clear(String serviceName) throws Exception {
+        checkAndDelete(CuratorUtils.getRegisterServiceProviderRootPath(serviceName));
+        checkAndDelete(CuratorUtils.getRegisterServiceWeightRootPath(serviceName));
+        checkAndDelete(CuratorUtils.convertServicePath(serviceName));
+    }
+
+    private void checkAndDelete(String path) throws Exception {
+        if (StringUtils.isBlank(path)) return;
+        if (CollectionUtils.isEmpty(client.getChildrenNodes(path))) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("check and delete node: path==> " + path);
+            }
+            client.deleteNode(path);
         }
     }
 

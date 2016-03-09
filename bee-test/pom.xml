@@ -40,7 +40,7 @@
         <dependency>
             <groupId>com.jeoy</groupId>
             <artifactId>bee-register-zookeeper</artifactId>
-            <version>${bee-remote-zookeeper.version}</version>
+            <version>${bee-register-zookeeper.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jeoy</groupId>

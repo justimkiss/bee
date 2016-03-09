@@ -53,7 +53,7 @@ public final class ProviderUtils {
         response.setSeq(request.getSeq());
         response.setSerialize(request.getSerialize());
         response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
-        response.setReturn(request);
+        response.setReturn(result);
         return response;
     }
 }
