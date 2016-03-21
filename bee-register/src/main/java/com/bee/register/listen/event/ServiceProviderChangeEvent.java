@@ -42,6 +42,10 @@ public class ServiceProviderChangeEvent implements Serializable{
         this.providerChangeEnum = providerChangeEnum;
     }
 
+    public String getAddress() {
+        return host + Constants.COLON_SYMBOL + port;
+    }
+
     public String getHost() {
         return host;
     }

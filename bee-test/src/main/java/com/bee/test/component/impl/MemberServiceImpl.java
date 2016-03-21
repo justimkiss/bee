@@ -26,8 +26,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member getMemberByName(String memberName) {
-//        return memberMap.get(memberName);
-        throw new RuntimeException("memberService error");
+        return memberMap.get(memberName);
     }
 
     @Override

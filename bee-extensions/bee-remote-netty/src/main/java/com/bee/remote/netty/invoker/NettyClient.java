@@ -7,6 +7,7 @@ import com.bee.remote.common.codec.domain.InvocationResponse;
 import com.bee.remote.invoker.AbstractClient;
 import com.bee.remote.invoker.callback.CallBack;
 import com.bee.remote.invoker.domain.ConnectInfo;
+import com.bee.remote.invoker.thread.HeartBeatTask;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -35,7 +36,7 @@ public class NettyClient extends AbstractClient {
     private EventLoopGroup workGroup;
     private Channel channel;
     private volatile boolean connected = false;
-    private volatile boolean active = false;
+    private volatile boolean active = true;
 
 
 
@@ -119,7 +120,7 @@ public class NettyClient extends AbstractClient {
 
     @Override
     public boolean isActive() {
-        return this.active;
+        return this.active && HeartBeatTask.isActiveAddress(this.address);
     }
 
     @Override
@@ -148,10 +149,12 @@ public class NettyClient extends AbstractClient {
         return this.getAddress() + ", connected:" + this.isConnected() + ", active:" + this.isActive();
     }
 
+    @Override
     public String getHost() {
         return host;
     }
 
+    @Override
     public int getPort() {
         return port;
     }

@@ -35,6 +35,7 @@ public final class ProviderProcessHandlerFactory {
             registerBizOperation(new GatewayProviderOperation());
             registerBizOperation(new BusinessProviderOperation());
             bizOperation = createServiceInvocationOperation(bizOperationList);
+            registerHeartBeatOperation(new WriteResponseProviderOperation());
             registerHeartBeatOperation(new HeartBeatProviderOperation());
             heartBeatOperation = createServiceInvocationOperation(hearBeatOperationList);
             isInit = true;

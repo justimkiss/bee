@@ -1,6 +1,7 @@
 package com.bee.register;
 
 import com.bee.common.constants.Constants;
+import com.bee.common.domain.HostInfo;
 import com.bee.common.extension.ExtensionLoader;
 import com.bee.register.config.DefaultRegisterConfigManager;
 import com.bee.register.config.RegisterConfigManager;
@@ -8,8 +9,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by jeoy.zhou on 12/18/15.
@@ -20,6 +21,16 @@ public class RegisterManager {
     private static RegisterManager registerManager = new RegisterManager();
     private static final Register REGISTER = ExtensionLoader.getExtension(Register.class);
     private static final RegisterConfigManager REGISTER_CONFIG_MANAGER = new DefaultRegisterConfigManager();
+    /**
+     * key: serviceurl
+     * value: set<hostInfo>
+     */
+    private static final Map<String, Set<HostInfo>> SERVICE_ADDRESS_CACHE = new ConcurrentHashMap<String, Set<HostInfo>>();
+    /**
+     * key: host:port
+     * value: hostInfo
+     */
+    private static final Map<String, HostInfo> ALL_REFERENCED_CACHE = new ConcurrentHashMap<String, HostInfo>();
     private static Properties properties;
 
     private static boolean isInit = false;
@@ -90,6 +101,91 @@ public class RegisterManager {
      */
     public void unregisterService(String serviceName, String serverAddress) {
         REGISTER.unregisterService(serviceName, serverAddress);
+    }
+
+    /**
+     * 获取缓存的服务提供者的host信息
+     * @param serviceName
+     * @return
+     */
+    public Set<HostInfo> getCacheServiceHostInfoByServiceName(String serviceName) {
+        return SERVICE_ADDRESS_CACHE.get(serviceName);
+    }
+
+    public HostInfo getCacheServiceHostInfoByAddress(String address) {
+        return ALL_REFERENCED_CACHE.get(address);
+    }
+
+    /**
+     * 缓存服务信息
+     * @param hostInfo
+     */
+    public void cacheServiceHostInfo(HostInfo hostInfo) {
+        if(!validHostInfo(hostInfo)) {
+            LOGGER.error(String.format("ClientManager: cacheServiceHostInfo param[%s] is invalid", hostInfo));
+            return;
+        }
+        Set<HostInfo> set = SERVICE_ADDRESS_CACHE.get(hostInfo.getServiceName());
+        if(set == null) {
+            set = new HashSet<HostInfo>();
+            Set<HostInfo> oldData = SERVICE_ADDRESS_CACHE.putIfAbsent(hostInfo.getServiceName(), set);
+            if(oldData != null) {
+                set = oldData;
+            }
+        }
+        set.add(hostInfo);
+        ALL_REFERENCED_CACHE.put(hostInfo.getConnect(), hostInfo);
+    }
+
+    /**
+     * 清楚缓存的服务信息
+     * @param hostInfo
+     */
+    public void removeCacheServiceHostInfo(HostInfo hostInfo) {
+        if(!simpleValidHostInfo(hostInfo)) {
+            LOGGER.error(String.format("ClientManager: removeCacheServiceHostInfo param[%s] is invalid", hostInfo));
+            return;
+        }
+        Set<HostInfo> cache = SERVICE_ADDRESS_CACHE.get(hostInfo.getServiceName());
+        if(cache == null) {
+            LOGGER.warn("ClientManager: removeCacheServiceHostInfo can not find by serviceName: " + hostInfo.getServiceName());
+            return;
+        }
+        cache.remove(hostInfo);
+        ALL_REFERENCED_CACHE.remove(hostInfo.getConnect());
+    }
+
+    public void setServiceWeight(String serviceAddress, int weight) {
+        HostInfo hostInfo = ALL_REFERENCED_CACHE.get(serviceAddress);
+        hostInfo.setWeight(weight);
+        if (LOGGER.isDebugEnabled())
+            LOGGER.debug("set " + serviceAddress + " weight to " + weight);
+    }
+
+    /**
+     * 简单验证hostInfo合法性
+     * @param hostInfo
+     * @return
+     */
+    private boolean simpleValidHostInfo(HostInfo hostInfo) {
+        return hostInfo != null
+                && StringUtils.isNotBlank(hostInfo.getHost())
+                && StringUtils.isNotBlank(hostInfo.getServiceName())
+                && hostInfo.getPort() > 0;
+    }
+
+    /**
+     * 验证hostinfo合法性
+     * @param hostInfo
+     * @return
+     */
+    private boolean validHostInfo(HostInfo hostInfo) {
+        return hostInfo != null
+                && StringUtils.isNotBlank(hostInfo.getHost())
+                && hostInfo.getPort() > 1
+                && hostInfo.getWeight() >= Constants.MIN_WEIGHT
+                && hostInfo.getWeight() <= Constants.MAX_WEIGHT
+                && StringUtils.isNotBlank(hostInfo.getServiceName());
     }
 
     public static Properties getProperties() {

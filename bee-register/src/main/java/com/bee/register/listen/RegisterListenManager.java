@@ -48,5 +48,10 @@ public class RegisterListenManager {
         }
     }
 
-
+    public static void weightChanged(String host, int port, int weight, ProviderChangeEnum providerChangeEnum) {
+        List<ServiceProviderChangeListener> listeners = Lists.newArrayList(SERVICE_PROVIDER_CHANGE_LISTENER_LIST);
+        for(ServiceProviderChangeListener listener : listeners) {
+            listener.weightChange(new ServiceProviderChangeEvent(host, port, null, weight, providerChangeEnum));
+        }
+    }
 }

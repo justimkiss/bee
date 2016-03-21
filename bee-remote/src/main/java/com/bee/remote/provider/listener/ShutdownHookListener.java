@@ -32,6 +32,6 @@ public class ShutdownHookListener implements Runnable{
             LOGGER.error("error with shutdown hook", e);
         }
         if (LOGGER.isInfoEnabled())
-            LOGGER.info("ShutdownHookListener: shutdown begin...");
+            LOGGER.info("ShutdownHookListener: shutdown end...");
     }
 }

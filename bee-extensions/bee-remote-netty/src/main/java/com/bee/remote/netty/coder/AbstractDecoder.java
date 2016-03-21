@@ -16,19 +16,18 @@ import java.util.List;
 public abstract class AbstractDecoder extends ByteToMessageDecoder {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractDecoder.class);
-    private static int HEAD_LENGTH = 7;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        if (in.readableBytes() < 7) return;
+        if (in.readableBytes() < 4) return;
         in.markReaderIndex();
-        short parseClassValue = in.readShort();
-        byte serializeType = in.readByte();
         Integer requestBodyLength = in.readInt();
-        if (in.readableBytes() < requestBodyLength) {
+        if (in.readableBytes() < requestBodyLength + 3) {
             in.resetReaderIndex();
             return;
         }
+        short parseClassValue = in.readShort();
+        byte serializeType = in.readByte();
         String parseClassName = NettyUtils.getClassName(new Integer(parseClassValue));
         if (StringUtils.isBlank(parseClassName)) {
             throw new IllegalArgumentException("parseClassName: " + parseClassName + ", not find");

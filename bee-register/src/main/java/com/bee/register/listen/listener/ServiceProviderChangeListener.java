@@ -8,4 +8,6 @@ import com.bee.register.listen.event.ServiceProviderChangeEvent;
 public interface ServiceProviderChangeListener {
 
     public void providerChange(ServiceProviderChangeEvent event);
+
+    public void weightChange(ServiceProviderChangeEvent event);
 }

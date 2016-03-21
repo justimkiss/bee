@@ -101,7 +101,7 @@ public class CuratorUtils {
      * @param path
      * @return
      */
-    private static String escape(String path) {
+    public static String escape(String path) {
         return path.replaceAll(Constants.PATH_SEPARATOR, Constants.PLACEHOLDER);
     }
 
@@ -110,7 +110,7 @@ public class CuratorUtils {
      * @param path
      * @return
      */
-    private static String unescape(String path) {
+    public static String unescape(String path) {
         return path.replaceAll(Constants.PLACEHOLDER, Constants.PATH_SEPARATOR);
     }
 }

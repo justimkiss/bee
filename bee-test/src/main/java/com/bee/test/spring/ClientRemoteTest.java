@@ -23,9 +23,17 @@ public class ClientRemoteTest {
     private MemberService memberService;
 
     @Test
-    public void testGetMemberByName() {
-        Member member = memberService.getMemberByName("M1");
-        System.out.print(member);
+    public void testGetMemberByName() throws InterruptedException {
+        while (true) {
+            try {
+                Member member = memberService.getMemberByName("M1");
+                System.out.print(member);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Thread.sleep(10000);
+        }
+//        Thread.sleep(Integer.MAX_VALUE);
     }
 
     @Test
@@ -33,4 +41,5 @@ public class ClientRemoteTest {
         List<Member> members = memberService.getAllMember();
         System.out.println(members);
     }
+
 }

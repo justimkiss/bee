@@ -4,12 +4,15 @@ import com.bee.remote.common.domain.Disposable;
 import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.ClientSelector;
 import com.bee.remote.invoker.domain.ConnectInfo;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jeoy.zhou on 2/16/16.
@@ -17,13 +20,15 @@ import java.util.Map;
 public class DefaultClusterListener implements ClusterListener, Disposable{
 
     private static final Logger LOGGER = Logger.getLogger(DefaultClusterListener.class);
-
+    private static final long DEFAULT_WAIT = 3000;
+    private ScheduledThreadPoolExecutor closeExecutor;
     private Map<String, List<Client>> workingClients;
     private Map<String, Client> allClients;
 
     public DefaultClusterListener(Map<String, List<Client>> workingClients, Map<String, Client> allClients) {
         this.workingClients = workingClients;
         this.allClients = allClients;
+        this.closeExecutor = new ScheduledThreadPoolExecutor(3);
     }
 
 
@@ -83,6 +88,46 @@ public class DefaultClusterListener implements ClusterListener, Disposable{
         }
     }
 
+    @Override
+    public void removeService(String serviceName, String host, int port) {
+        if (LOGGER.isDebugEnabled())
+            LOGGER.debug("[cluster-listener] do removeService provider:" + serviceName + ":" + host + ":" + port);
+        List<Client> clients = workingClients.get(serviceName);
+        List<Client> newClients = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(clients)) {
+            newClients.addAll(newClients);
+        }
+        Client client = null;
+        for (Client tmp : clients) {
+            if (tmp != null && tmp.getHost().equals(host) && tmp.getPort() == port) {
+                newClients.remove(tmp);
+                client = tmp;
+                break;
+            }
+        }
+        workingClients.put(serviceName, newClients);
+        if (client != null) {
+            allClients.remove(client.getAddress());
+            closeClientFuture(client);
+        }
+    }
+
+    private void closeClientFuture(final Client client) {
+        try {
+            this.closeExecutor.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    client.close();
+                    if (LOGGER.isDebugEnabled())
+                        LOGGER.debug("close client:" + client.getAddress());
+                }
+            }, DEFAULT_WAIT, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            LOGGER.error("error schedule task to close client", e);
+        }
+    }
+
+
     private boolean clientExists(ConnectInfo connectInfo) {
         for(String serviceUrl : connectInfo.getServiceNames().keySet()) {
             List<Client> clientList = workingClients.get(serviceUrl);
@@ -98,6 +143,10 @@ public class DefaultClusterListener implements ClusterListener, Disposable{
 
     @Override
     public void destroy() throws Exception {
-
+        try {
+            this.closeExecutor.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

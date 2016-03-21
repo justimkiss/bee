@@ -9,7 +9,7 @@
        <context:annotation-config/>
 
        <bean id="serviceRegister" class="com.bee.remote.spring.ServiceRegistry" init-method="init" lazy-init="false">
-              <property name="port" value="3344"/>
+              <property name="port" value="3333"/>
               <property name="services">
                      <map>
                             <entry key="com.bee.test.component.MemberService_1.0.0" value-ref="memberService" />

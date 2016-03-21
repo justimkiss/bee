@@ -56,4 +56,11 @@ public final class ProviderUtils {
         response.setReturn(result);
         return response;
     }
+
+    public static InvocationResponse createHeartResponse(InvocationRequest request) {
+        InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerialize());
+        response.setSeq(request.getSeq());
+        response.setReturn(Constants.HEART_RESULT);
+        return response;
+    }
 }

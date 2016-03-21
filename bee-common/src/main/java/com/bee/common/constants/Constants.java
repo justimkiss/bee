@@ -90,9 +90,14 @@ public final class Constants {
     public static final float DEFAULT_CANCEL_RADIO = 1f;
 
     //InvocationTimeoutThread mills
-    public static final long DEFAULT_INVOCATION_CHECK_INTERVAL = 1000;
+    public static final long DEFAULT_INVOCATION_CHECK_INTERVAL = 500;
 
     //defaultRequest
     public static final boolean REQUEST_LOG_PARAMETERS = true;
 
+    // HeartBeatTask
+    public static final int DEFAULT_HEARTBEAT_TIMEOUT = 3000;
+
+    // providerUtils
+    public static final int HEART_RESULT = 100;
 }

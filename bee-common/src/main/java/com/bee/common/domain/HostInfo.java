@@ -87,4 +87,13 @@ public class HostInfo implements Serializable{
     public String toString() {
         return "HostInfo [host=" + host + ", port=" + port + ", weight=" + weight + "]";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof HostInfo) {
+            HostInfo hp = (HostInfo) obj;
+            return this.host.equals(hp.host) && this.port == hp.port;
+        }
+        return false;
+    }
 }

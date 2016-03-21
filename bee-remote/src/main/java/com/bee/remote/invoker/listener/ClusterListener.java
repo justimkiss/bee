@@ -11,4 +11,6 @@ public interface ClusterListener {
     public void addConnected(ConnectInfo connectInfo);
 
     public void removeConnected(Client client);
+
+    public void removeService(String serviceName, String host, int port);
 }

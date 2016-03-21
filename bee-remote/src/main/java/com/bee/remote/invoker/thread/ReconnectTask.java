@@ -1,5 +1,6 @@
 package com.bee.remote.invoker.thread;
 
+import com.bee.common.constants.Constants;
 import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.domain.ConnectInfo;
 import com.bee.remote.invoker.listener.ClusterListener;
@@ -72,5 +73,13 @@ public class ReconnectTask implements Runnable, ClusterListener {
             LOGGER.debug("[reconnect] add service provider to reconnect listener:" + client);
         }
         CLOSED_CLIENTS.putIfAbsent(client.getConnectInfo().getConnect(), client);
+    }
+
+    @Override
+    public void removeService(String serviceName, String host, int port) {
+        String address = host + Constants.COLON_SYMBOL + port;
+        if (LOGGER.isDebugEnabled())
+            LOGGER.debug("[reconnect] do not use service provider:" + address);
+        CLOSED_CLIENTS.remove(address);
     }
 }

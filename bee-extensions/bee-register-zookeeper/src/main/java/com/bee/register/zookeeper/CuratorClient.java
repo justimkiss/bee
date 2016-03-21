@@ -43,9 +43,10 @@ public class CuratorClient {
             public void stateChanged(CuratorFramework client, ConnectionState newState) {
                 if(LOGGER.isInfoEnabled())
                     LOGGER.info("zookeeper client status change to: " + newState.toString());
+                // TODO 连接状态变化更新
             }
         });
-        newClient.getCuratorListenable().addListener(new CuratorEventListener(), curatorEventThreadPool);
+        newClient.getCuratorListenable().addListener(new CuratorEventListener(this), curatorEventThreadPool);
         newClient.start();
         boolean isConnect = newClient.getZookeeperClient().blockUntilConnectedOrTimedOut();
         CuratorFramework oldClient = this.client;
@@ -66,10 +67,11 @@ public class CuratorClient {
      * @return
      * @throws Exception
      */
-    public String get(String path) throws Exception {
+    public String get(String path, boolean isWatch) throws Exception {
         byte[] bytes = null;
         try {
-            bytes = this.client.getData().forPath(path);
+            bytes = (isWatch) ? this.client.getData().watched().forPath(path) :
+                    this.client.getData().forPath(path);
             String result = new String(bytes, CHARSET_UTF8);
             if(LOGGER.isInfoEnabled())
                 LOGGER.debug(String.format("CuratorClient: getData success path[%s], value[%s]", path, result));
@@ -108,6 +110,9 @@ public class CuratorClient {
         createPersistentNode(path, null);
     }
 
+    public void watched(String path) throws Exception {
+        this.client.checkExists().watched().forPath(path);
+    }
     /**
      * 创建永久节点
      * @param path
@@ -174,10 +179,11 @@ public class CuratorClient {
         return getNodeStat(path) != null;
     }
 
-    public List<String> getChildrenNodes(String path) throws Exception {
+    public List<String> getChildrenNodes(String path, boolean isWatch) throws Exception {
         if(StringUtils.isBlank(path))
             throw new IllegalArgumentException("CuratorClient: getChildrenNodes param[path] is null");
-        List<String> childNodes = this.client.getChildren().forPath(path);
+        List<String> childNodes = (isWatch) ? this.client.getChildren().watched().forPath(path) :
+                this.client.getChildren().forPath(path);
         if(LOGGER.isDebugEnabled())
             LOGGER.debug(String.format("CuratorClient: getChildrenNodes path[%s], childrenNodes[%s]", path, childNodes));
         return childNodes;

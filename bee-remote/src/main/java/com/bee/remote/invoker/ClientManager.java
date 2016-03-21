@@ -17,7 +17,6 @@ import com.bee.remote.invoker.listener.DefaultClusterListener;
 import com.bee.remote.invoker.route.ClientRouteManager;
 import com.bee.remote.invoker.route.DefaultClientRouteManager;
 import com.bee.remote.invoker.thread.HeartBeatTask;
-import com.bee.remote.invoker.thread.ProviderAvailableTask;
 import com.bee.remote.invoker.thread.ReconnectTask;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -25,12 +24,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jeoy.zhou on 2/2/16.
@@ -38,17 +36,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public class ClientManager implements Disposable{
 
     private static final Logger LOGGER = Logger.getLogger(ClientManager.class);
-    /**
-     * key: serviceurl
-     * value: set<hostInfo>
-     */
-    private static final Map<String, Set<HostInfo>> SERVICE_ADDRESS_CACHE = new ConcurrentHashMap<String, Set<HostInfo>>();
-    /**
-     * key: host:port
-     * value: hostInfo
-     */
-    private static final Map<String, HostInfo> ALL_REFERENCED_CACHE = new ConcurrentHashMap<String, HostInfo>();
-
     /**
      * 缓存client
      * key: serviceUrl
@@ -75,12 +62,11 @@ public class ClientManager implements Disposable{
 
     private ClientManager() {
         HeartBeatTask heartBeatTask = new HeartBeatTask(SERVICE_CLIENTS);
+        HEART_BEAT_THREAD_POOL.scheduleWithFixedDelay(heartBeatTask, HEART_BEAT_INTERVAL, HEART_BEAT_INTERVAL, TimeUnit.SECONDS);
         ReconnectTask reconnectTask = new ReconnectTask(SERVICE_CLIENTS);
-        ProviderAvailableTask providerAvailableTask = new ProviderAvailableTask(SERVICE_CLIENTS);
-        //TODO 去除注释
-//        HEART_BEAT_THREAD_POOL.scheduleAtFixedRate(heartBeatTask, HEART_BEAT_INTERVAL, HEART_BEAT_INTERVAL, TimeUnit.SECONDS);
-//        RECONNECT_THREAD_POOL.scheduleAtFixedRate(reconnectTask, RECONNECT_INTERVAL, RECONNECT_INTERVAL, TimeUnit.SECONDS);
-//        PROVIDER_AVAILABLE_THREAD_POOL.scheduleAtFixedRate(providerAvailableTask, PROVIDER_INTERVAL, PROVIDER_INTERVAL, TimeUnit.SECONDS);
+//        ProviderAvailableTask providerAvailableTask = new ProviderAvailableTask(SERVICE_CLIENTS);
+        RECONNECT_THREAD_POOL.scheduleWithFixedDelay(reconnectTask, RECONNECT_INTERVAL, RECONNECT_INTERVAL, TimeUnit.SECONDS);
+//        PROVIDER_AVAILABLE_THREAD_POOL.scheduleWithFixedDelay(providerAvailableTask, PROVIDER_INTERVAL, PROVIDER_INTERVAL, TimeUnit.SECONDS);
 
         defaultClusterListener = new DefaultClusterListener(SERVICE_CLIENTS, ALL_SERVICE_CLIENTS);
         ClusterListenerManager.getInstance().registerListener(defaultClusterListener);
@@ -164,7 +150,7 @@ public class ClientManager implements Disposable{
         Map<String, Integer> result = Maps.newHashMapWithExpectedSize(addresses.size());
         HostInfo hostInfo = null;
         for (String address : addresses) {
-            hostInfo = ALL_REFERENCED_CACHE.get(address);
+            hostInfo = RegisterManager.getInstance().getCacheServiceHostInfoByAddress(address);
             if (hostInfo == null) continue;
             result.put(address, hostInfo.getWeight());
         }
@@ -187,73 +173,6 @@ public class ClientManager implements Disposable{
         return serviceAddressList;
     }
 
-    /**
-     * 缓存服务信息
-     * @param hostInfo
-     */
-    private void cacheServiceHostInfo(HostInfo hostInfo) {
-        if(!validHostInfo(hostInfo)) {
-            LOGGER.error(String.format("ClientManager: cacheServiceHostInfo param[%s] is invalid", hostInfo));
-            return;
-        }
-        Set<HostInfo> set = SERVICE_ADDRESS_CACHE.get(hostInfo.getServiceName());
-        if(set == null) {
-            set = new HashSet<HostInfo>();
-            Set<HostInfo> oldData = SERVICE_ADDRESS_CACHE.putIfAbsent(hostInfo.getServiceName(), set);
-            if(oldData != null) {
-                set = oldData;
-            }
-        }
-        set.add(hostInfo);
-        ALL_REFERENCED_CACHE.put(hostInfo.getConnect(), hostInfo);
-    }
-
-    /**
-     * 清楚缓存的服务信息
-     * @param hostInfo
-     */
-    private void removeCacheServiceHostInfo(HostInfo hostInfo) {
-        if(!simpleValidHostInfo(hostInfo)) {
-            LOGGER.error(String.format("ClientManager: removeCacheServiceHostInfo param[%s] is invalid", hostInfo));
-            return;
-        }
-        Set<HostInfo> cache = SERVICE_ADDRESS_CACHE.get(hostInfo.getServiceName());
-        if(cache == null) {
-            LOGGER.warn("ClientManager: removeCacheServiceHostInfo can not find by serviceName: " + hostInfo.getServiceName());
-            return;
-        }
-        cache.remove(hostInfo);
-        ALL_REFERENCED_CACHE.remove(hostInfo.getConnect());
-    }
-
-
-    /**
-     * 简单验证hostInfo合法性
-     * @param hostInfo
-     * @return
-     */
-    private boolean simpleValidHostInfo(HostInfo hostInfo) {
-        return hostInfo != null
-                && StringUtils.isNotBlank(hostInfo.getHost())
-                && StringUtils.isNotBlank(hostInfo.getServiceName())
-                && hostInfo.getPort() > 0;
-    }
-
-    /**
-     * 验证hostinfo合法性
-     * @param hostInfo
-     * @return
-     */
-    private boolean validHostInfo(HostInfo hostInfo) {
-        return hostInfo != null
-                && StringUtils.isNotBlank(hostInfo.getHost())
-                && hostInfo.getPort() > 1
-                && hostInfo.getWeight() >= Constants.MIN_WEIGHT
-                && hostInfo.getWeight() <= Constants.MAX_WEIGHT
-                && StringUtils.isNotBlank(hostInfo.getServiceName());
-    }
-
-
     class ClientManagerServiceProviderChangeListener implements ServiceProviderChangeListener {
         @Override
         public void providerChange(ServiceProviderChangeEvent event) {
@@ -263,11 +182,16 @@ public class ClientManager implements Disposable{
                 ConnectInfo connectInfo = new ConnectInfo(event.getServiceName(), event.getHost(), event.getPort(), event.getWeight());
                 ClusterListenerManager.getInstance().addConnect(connectInfo);
                 // chche service info
-                cacheServiceHostInfo(hostInfo);
+                RegisterManager.getInstance().cacheServiceHostInfo(hostInfo);
             } else if (event.getProviderChangeEnum().equals(ProviderChangeEnum.REMOVE)) {
                 // remove service info
-                removeCacheServiceHostInfo(hostInfo);
+                RegisterManager.getInstance().removeCacheServiceHostInfo(hostInfo);
             }
+        }
+
+        @Override
+        public void weightChange(ServiceProviderChangeEvent event) {
+            RegisterManager.getInstance().setServiceWeight(event.getAddress(), event.getWeight());
         }
     }
 

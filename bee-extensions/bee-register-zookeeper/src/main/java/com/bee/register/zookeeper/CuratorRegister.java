@@ -64,7 +64,7 @@ public class CuratorRegister implements Register {
         if(StringUtils.isBlank(serviceName))
             throw new IllegalArgumentException("CuratorRegister: getRegisterAddress param[serviceName] is null");
         try {
-            List<String> result = this.client.getChildrenNodes(CuratorUtils.getRegisterServiceProviderRootPath(serviceName));
+            List<String> result = this.client.getChildrenNodes(CuratorUtils.getRegisterServiceProviderRootPath(serviceName), true);
             if(LOGGER.isDebugEnabled()) {
                 LOGGER.debug(String.format("CuratorRegister: getRegisterAddress serviceName[%s], children node[%s]", serviceName, result));
             }
@@ -84,7 +84,7 @@ public class CuratorRegister implements Register {
         if(StringUtils.isBlank(serviceName))
             throw new IllegalArgumentException("CuratorRegister: getRegisterAddress param[serviceName] is null");
         try {
-            List<String> result = this.client.getChildrenNodes(CuratorUtils.getRegisterServiceConsumerRootPath(serviceName));
+            List<String> result = this.client.getChildrenNodes(CuratorUtils.getRegisterServiceConsumerRootPath(serviceName), false);
             if(LOGGER.isDebugEnabled())
                 LOGGER.debug(String.format("CuratorRegister: getRegisterAddress serviceName[%s], children node[%s]", serviceName, result));
             return result;
@@ -141,7 +141,6 @@ public class CuratorRegister implements Register {
             } else {
                 this.client.deleteNode(servicePath);
             }
-            clear(serviceName);
         } catch (Exception e) {
             LOGGER.error(String.format("CuratorRegister: unregisterService failed to unregister serviceName[%s] serverAddress[%s]", serviceName, serverAddress));
             throw new RegisterException(e);
@@ -152,7 +151,7 @@ public class CuratorRegister implements Register {
      *
      * @param serviceName
      * @throws Exception
-     */
+
     private void clear(String serviceName) throws Exception {
         checkAndDelete(CuratorUtils.getRegisterServiceProviderRootPath(serviceName));
         checkAndDelete(CuratorUtils.getRegisterServiceWeightRootPath(serviceName));
@@ -161,13 +160,14 @@ public class CuratorRegister implements Register {
 
     private void checkAndDelete(String path) throws Exception {
         if (StringUtils.isBlank(path)) return;
-        if (CollectionUtils.isEmpty(client.getChildrenNodes(path))) {
+        if (CollectionUtils.isEmpty(client.getChildrenNodes(path, false))) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("check and delete node: path==> " + path);
             }
             client.deleteNode(path);
         }
     }
+     */
 
     /**
      * 验证权重范围
@@ -192,7 +192,7 @@ public class CuratorRegister implements Register {
             throw new IllegalArgumentException("CuratorRegister: getServiceWeight param[serverAddress] is null");
         String val = null;
         try {
-            val = this.client.get(CuratorUtils.getWeightPath(serviceName, serverAddress));
+            val = this.client.get(CuratorUtils.getWeightPath(serviceName, serverAddress), true);
         } catch (Exception e) {
             LOGGER.error(String.format("CuratorRegister: getServiceWeight failed to get serviceName[%s], serverAddress[%s]", serviceName, serverAddress), e);
         }

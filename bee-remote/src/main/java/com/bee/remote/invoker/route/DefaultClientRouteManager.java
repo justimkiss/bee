@@ -48,12 +48,16 @@ public class DefaultClientRouteManager implements ClientRouteManager{
      */
     private Client selectBestClient(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest invocationRequest) {
         assert(CollectionUtils.isNotEmpty(clients) && clients.size() >= 1);
-        if (clients.size() == 1)
-            return clients.get(0);
+        Client result = null;
+        if (clients.size() == 1) {
+            result = clients.get(0);
+            assert(result.isActive());
+            return result;
+        }
         long minCapacity = Long.MAX_VALUE;
         Map<String, Integer> weightCache = ClientManager.getInstance().getWeightFromCaches(clients);
-        Client result = null;
         for (Client client : clients) {
+            if (!client.isActive()) continue;
             Integer weight = weightCache.get(client.getAddress());
             weight = weight == null ? Constants.DEFAULT_WEIGHT : weight;
             long tmp = weight * InvokerStaticsHolder.getCapacityValue(client.getAddress());

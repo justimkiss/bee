@@ -1,5 +1,10 @@
 package com.bee.remote.invoker.listener;
 
+import com.bee.common.constants.Constants;
+import com.bee.register.listen.RegisterListenManager;
+import com.bee.register.listen.event.ProviderChangeEnum;
+import com.bee.register.listen.event.ServiceProviderChangeEvent;
+import com.bee.register.listen.listener.ServiceProviderChangeListener;
 import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.domain.ConnectInfo;
 import com.google.common.collect.Lists;
@@ -22,6 +27,7 @@ public class ClusterListenerManager {
     private static ClusterListenerManager clusterListenerManager = new ClusterListenerManager();
 
     private ClusterListenerManager() {
+        RegisterListenManager.addListener(new InnerServiceProviderChangeListener());
     }
 
     public static ClusterListenerManager getInstance() {
@@ -66,5 +72,30 @@ public class ClusterListenerManager {
 
     public void cancelListener(ClusterListener clusterListener) {
         CLUSTER_LISTENER.remove(clusterListener);
+    }
+
+    class InnerServiceProviderChangeListener implements ServiceProviderChangeListener {
+        @Override
+        public void providerChange(ServiceProviderChangeEvent event) {
+            if (event.getProviderChangeEnum() == ProviderChangeEnum.REMOVE) {
+                String address = event.getHost() + Constants.COLON_SYMBOL + event.getPort();
+                if (LOGGER.isDebugEnabled())
+                    LOGGER.debug("[cluster-listener-mgr] remove:" + address + " from " + event.getServiceName());
+                ConnectInfo connectInfo = CONNECT_MAP.get(event.getServiceName());
+                if (connectInfo != null) {
+                    connectInfo.getServiceNames().remove(event.getServiceName());
+                    if (connectInfo.getServiceNames().size() == 0)
+                        CONNECT_MAP.remove(address);
+                }
+                for (ClusterListener listener : CLUSTER_LISTENER) {
+                    listener.removeService(event.getServiceName(), event.getHost(), event.getPort());
+                }
+            }
+        }
+
+        @Override
+        public void weightChange(ServiceProviderChangeEvent event) {
+            // nothind to do
+        }
     }
 }

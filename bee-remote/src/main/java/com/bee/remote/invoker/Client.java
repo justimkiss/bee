@@ -24,6 +24,10 @@ public interface Client {
 
     public String getAddress();
 
+    public String getHost();
+
+    public int getPort();
+
     public void close();
 
     public InvocationResponse sendRequest(InvocationRequest request) throws NetworkException;

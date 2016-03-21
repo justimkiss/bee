@@ -6,7 +6,8 @@ package com.bee.register.listen.event;
 public enum ProviderChangeEnum {
 
     ADD("add", "add node"),
-    REMOVE("remove", "remote node");
+    REMOVE("remove", "remote node"),
+    CHANGE("change", "change node vaule");
 
     private String key;
     private String desc;

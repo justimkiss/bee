@@ -21,9 +21,9 @@ public abstract class AbstractEncoder extends MessageToByteEncoder<InvocationSer
         if (requestClassValue == null)
             throw new IllegalArgumentException("requestClass:" + requestClass + " not register");
         byte[] body = _encode(ctx, invocationSerializable, out);
+        out.writeInt(body.length);
         out.writeShort(requestClassValue);
         out.writeByte(invocationSerializable.getSerialize());
-        out.writeInt(body.length);
         out.writeBytes(body);
     }
 
