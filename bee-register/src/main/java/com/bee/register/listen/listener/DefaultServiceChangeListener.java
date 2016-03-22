@@ -25,9 +25,16 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
         try {
             Set<HostInfo> hostInfoSet = parseHostInfos(serviceName, hosts);
             Set<HostInfo> oldHostInfoSet = RegisterManager.getInstance().getCacheServiceHostInfoByServiceName(serviceName);
-            if (oldHostInfoSet == null) oldHostInfoSet = Sets.newHashSet();
-            Set<HostInfo> toAddSet = Sets.difference(hostInfoSet, oldHostInfoSet);
-            Set<HostInfo> toRemoveSet = Sets.difference(oldHostInfoSet, hostInfoSet);
+            Set<HostInfo> toAddSet = Sets.newHashSet();
+            Set<HostInfo> toRemoveSet = Sets.newHashSet();
+            if (CollectionUtils.isEmpty(oldHostInfoSet)) {
+                toAddSet = hostInfoSet;
+            } else {
+                toAddSet.addAll(hostInfoSet);
+                toAddSet.removeAll(oldHostInfoSet);
+                toRemoveSet.addAll(oldHostInfoSet);
+                toRemoveSet.removeAll(hostInfoSet);
+            }
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("service hosts changed, to added hosts:" + toAddSet);
                 LOGGER.debug("service hosts changed, to removed hosts:" + toRemoveSet);

@@ -15,7 +15,7 @@
               <property name="interfaceName"
                         value="com.bee.test.component.MemberService" />
               <property name="callMethod" value="sync" />
-              <property name="timeOut" value="1000000" />
+              <property name="timeOut" value="2000" />
        </bean>
 
 </beans>

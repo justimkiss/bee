@@ -16,6 +16,7 @@ import java.util.Map;
 public class MemberServiceImpl implements MemberService {
 
     private static Map<String, Member> memberMap = new HashMap<String, Member>();
+    private String args;
 
     static {
         Member member = new Member("M111", "tt@tt.com", "M1", 12);
@@ -26,7 +27,16 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member getMemberByName(String memberName) {
+        System.out.println(args);
         return memberMap.get(memberName);
+    }
+
+    public String getArgs() {
+        return args;
+    }
+
+    public void setArgs(String args) {
+        this.args = args;
     }
 
     @Override

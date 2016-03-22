@@ -27,11 +27,12 @@ public class ClientRemoteTest {
         while (true) {
             try {
                 Member member = memberService.getMemberByName("M1");
-                System.out.print(member);
+                System.out.println(member);
+                System.out.println(member.getMemberName());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         }
 //        Thread.sleep(Integer.MAX_VALUE);
     }

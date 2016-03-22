@@ -70,7 +70,7 @@ public final class ServiceProviderFactory {
         for(Server server : servers) {
             serverAddress = server.getServiceConfig().getIp() +
                     Constants.COLON_SYMBOL + server.getServiceConfig().getPort();
-            RegisterManager.getInstance().registerService(providerConfig.getUrl(), serverAddress, Constants.DEFAULT_WEIGHT);
+            RegisterManager.getInstance().registerService(providerConfig.getUrl(), serverAddress, providerConfig.getServiceConfig().getWeight());
         }
     }
 

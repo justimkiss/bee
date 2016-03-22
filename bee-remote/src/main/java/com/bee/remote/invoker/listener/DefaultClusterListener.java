@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by jeoy.zhou on 2/16/16.
  */
-public class DefaultClusterListener implements ClusterListener, Disposable{
+public class DefaultClusterListener implements ClusterListener, Disposable {
 
     private static final Logger LOGGER = Logger.getLogger(DefaultClusterListener.class);
     private static final long DEFAULT_WAIT = 3000;
@@ -34,16 +34,16 @@ public class DefaultClusterListener implements ClusterListener, Disposable{
 
     @Override
     public void addConnected(ConnectInfo connectInfo) {
-        if(LOGGER.isInfoEnabled())
+        if (LOGGER.isInfoEnabled())
             LOGGER.info("[cluster-listener] add service provider:" + connectInfo);
         Client client = allClients.get(connectInfo.getConnect());
-        if(clientExists(connectInfo)) {
-            if(client == null) return;
+        if (clientExists(connectInfo)) {
+            if (client == null) return;
         }
         if (client == null) {
             client = ClientSelector.createClient(connectInfo);
             Client oldClient = allClients.putIfAbsent(connectInfo.getConnect(), client);
-            if(oldClient != null)
+            if (oldClient != null)
                 client = oldClient;
         }
         try {
@@ -54,12 +54,12 @@ public class DefaultClusterListener implements ClusterListener, Disposable{
                     LOGGER.info("client already connected:" + client);
             }
             if (client.isConnected()) {
-                for(String serviceUrl : connectInfo.getServiceNames().keySet()) {
+                for (String serviceUrl : connectInfo.getServiceNames().keySet()) {
                     List<Client> clientList = workingClients.get(serviceUrl);
-                    if(clientList == null) {
+                    if (clientList == null) {
                         clientList = new ArrayList<Client>();
                         List<Client> oldClientList = workingClients.putIfAbsent(serviceUrl, clientList);
-                        if(oldClientList != null) {
+                        if (oldClientList != null) {
                             clientList = oldClientList;
                         }
                     }
@@ -80,10 +80,10 @@ public class DefaultClusterListener implements ClusterListener, Disposable{
 
     @Override
     public void removeConnected(Client client) {
-        if(LOGGER.isInfoEnabled())
+        if (LOGGER.isInfoEnabled())
             LOGGER.info("[cluster-listener] remove service provider:" + client);
-        for(List<Client> clients : workingClients.values()) {
-            if(CollectionUtils.isNotEmpty(clients))
+        for (List<Client> clients : workingClients.values()) {
+            if (CollectionUtils.isNotEmpty(clients))
                 clients.remove(client);
         }
     }
@@ -95,7 +95,7 @@ public class DefaultClusterListener implements ClusterListener, Disposable{
         List<Client> clients = workingClients.get(serviceName);
         List<Client> newClients = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(clients)) {
-            newClients.addAll(newClients);
+            newClients.addAll(clients);
         }
         Client client = null;
         for (Client tmp : clients) {
@@ -129,11 +129,11 @@ public class DefaultClusterListener implements ClusterListener, Disposable{
 
 
     private boolean clientExists(ConnectInfo connectInfo) {
-        for(String serviceUrl : connectInfo.getServiceNames().keySet()) {
+        for (String serviceUrl : connectInfo.getServiceNames().keySet()) {
             List<Client> clientList = workingClients.get(serviceUrl);
-            if(CollectionUtils.isNotEmpty(clientList)) {
-                for(Client client : clientList) {
-                    if(client.getAddress().equals(connectInfo.getConnect()))
+            if (CollectionUtils.isNotEmpty(clientList)) {
+                for (Client client : clientList) {
+                    if (client.getAddress().equals(connectInfo.getConnect()))
                         return true;
                 }
             }

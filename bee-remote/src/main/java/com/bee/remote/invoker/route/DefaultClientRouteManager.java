@@ -1,19 +1,17 @@
 package com.bee.remote.invoker.route;
 
-import com.bee.common.constants.Constants;
 import com.bee.remote.common.codec.domain.InvocationRequest;
 import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.ClientManager;
+import com.bee.remote.invoker.balance.LoadBalance;
+import com.bee.remote.invoker.balance.RandomLoadBalance;
 import com.bee.remote.invoker.config.InvokerConfig;
 import com.bee.remote.invoker.exception.ServiceUnavailableException;
-import com.bee.remote.invoker.route.statics.InvokerStaticsHolder;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 /**
  * Created by jeoy.zhou on 2/18/16.
@@ -21,7 +19,7 @@ import java.util.Random;
 public class DefaultClientRouteManager implements ClientRouteManager{
 
     private static final Logger LOGGER = Logger.getLogger(DefaultClientRouteManager.class);
-    private Random random = new Random();
+    private LoadBalance loadBalance = new RandomLoadBalance();
 
     @Override
     public Client getClient(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest invocationRequest) throws ServiceUnavailableException{
@@ -54,19 +52,20 @@ public class DefaultClientRouteManager implements ClientRouteManager{
             assert(result.isActive());
             return result;
         }
-        long minCapacity = Long.MAX_VALUE;
-        Map<String, Integer> weightCache = ClientManager.getInstance().getWeightFromCaches(clients);
-        for (Client client : clients) {
-            if (!client.isActive()) continue;
-            Integer weight = weightCache.get(client.getAddress());
-            weight = weight == null ? Constants.DEFAULT_WEIGHT : weight;
-            long tmp = weight * InvokerStaticsHolder.getCapacityValue(client.getAddress());
-            if (tmp < minCapacity) {
-                minCapacity = tmp;
-                result = client;
-            }
-        }
-        return result;
+        return loadBalance.select(clients, invokerConfig, invocationRequest, ClientManager.getInstance().getWeightFromCaches(clients));
+//        long minCapacity = Long.MAX_VALUE;
+//        Map<String, Integer> weightCache = ClientManager.getInstance().getWeightFromCaches(clients);
+//        for (Client client : clients) {
+//            if (!client.isActive()) continue;
+//            Integer weight = weightCache.get(client.getAddress());
+//            weight = weight == null ? Constants.DEFAULT_WEIGHT : weight;
+//            long tmp = weight * InvokerStaticsHolder.getCapacityValue(client.getAddress());
+//            if (tmp < minCapacity) {
+//                minCapacity = tmp;
+//                result = client;
+//            }
+//        }
+//        return result;
     }
 
 }

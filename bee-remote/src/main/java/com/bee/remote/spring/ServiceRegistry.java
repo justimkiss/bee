@@ -21,6 +21,7 @@ public class ServiceRegistry {
     private static final Logger LOGGER = Logger.getLogger(ServiceRegistry.class);
     private Map<String, Object> services;
     private Integer port;
+    private Integer weight = Constants.DEFAULT_WEIGHT;
     private int corePoolSize = Constants.DEFAULT_PROVIDER_COREPOOLSIZE;
     private int maxPoolSize = Constants.DEFAULT_PROVIDER_MAXPOOLSIZE;
     private int workQueueSize = Constants.DEFAULT_PROVIDER_WORKQUEUESIZE;
@@ -34,6 +35,9 @@ public class ServiceRegistry {
             throw new IllegalArgumentException(String.format("ServiceRegistry: service port[%s] is Illegal, port must in(1025-65535)", port));
         } else {
             serviceConfig.setPort(port);
+        }
+        if (weight != null && weight > 0 && weight < 11) {
+            serviceConfig.setWeight(weight);
         }
         serviceConfig.setCorePoolSize(corePoolSize);
         serviceConfig.setMaxPoolSize(maxPoolSize);
@@ -76,5 +80,13 @@ public class ServiceRegistry {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public Integer getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
     }
 }

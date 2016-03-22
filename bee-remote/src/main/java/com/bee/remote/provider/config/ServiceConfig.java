@@ -11,6 +11,7 @@ public class ServiceConfig {
 
     private String ip;
     private int port = Constants.DEFAULT_PORT;
+    private int weight = Constants.DEFAULT_WEIGHT;
     private int httpPort = Constants.DEFAULT_HTTP_PORT;
     private String protocol = Constants.PROTOCOL_DEFAULT;
     private int corePoolSize = Constants.DEFAULT_PROVIDER_COREPOOLSIZE;
@@ -71,6 +72,14 @@ public class ServiceConfig {
 
     public void setWorkQueueSize(int workQueueSize) {
         this.workQueueSize = workQueueSize;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     @Override
