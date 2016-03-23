@@ -27,8 +27,7 @@ public class ClientRemoteTest {
         while (true) {
             try {
                 Member member = memberService.getMemberByName("M1");
-                System.out.println(member);
-                System.out.println(member.getMemberName());
+                System.out.println(member.getEmail());
             } catch (Exception e) {
                 e.printStackTrace();
             }

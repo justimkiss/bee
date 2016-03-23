@@ -19,7 +19,7 @@ public class MemberServiceImpl implements MemberService {
     private String args;
 
     static {
-        Member member = new Member("M111", "tt@tt.com", "M1", 12);
+        Member member = new Member("M111", "tt@tt", "M1", 12);
         memberMap.put(member.getMemberName(), member);
         member = new Member("M2222", "ss@ww.com", "M2", 22);
         memberMap.put(member.getMemberName(), member);
@@ -27,8 +27,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member getMemberByName(String memberName) {
-        System.out.println(args);
-        return memberMap.get(memberName);
+        Member member = memberMap.get(memberName);
+        member.setEmail(args);
+        return member;
     }
 
     public String getArgs() {
