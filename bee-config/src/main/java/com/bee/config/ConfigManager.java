@@ -5,7 +5,7 @@ package com.bee.config;
  */
 public interface ConfigManager {
 
-    public String getServiceAddress();
+    public String getLocalIP();
 
     public String getConfig(String key);
 

@@ -2,7 +2,8 @@ package com.bee.remote.spring;
 
 import com.bee.common.constants.Constants;
 import com.bee.common.exception.RpcException;
-import com.bee.common.util.NetUtils;
+import com.bee.config.ConfigManager;
+import com.bee.config.loader.ConfigManagerLoader;
 import com.bee.remote.provider.config.ProviderConfig;
 import com.bee.remote.provider.config.ServiceConfig;
 import org.apache.commons.collections.MapUtils;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class ServiceRegistry {
 
     private static final Logger LOGGER = Logger.getLogger(ServiceRegistry.class);
+    private static final ConfigManager CONFIG_MANAGER = ConfigManagerLoader.getConfigManager();
     private Map<String, Object> services;
     private Integer port;
     private Integer weight = Constants.DEFAULT_WEIGHT;
@@ -42,7 +44,8 @@ public class ServiceRegistry {
         serviceConfig.setCorePoolSize(corePoolSize);
         serviceConfig.setMaxPoolSize(maxPoolSize);
         serviceConfig.setWorkQueueSize(workQueueSize);
-        String localIP = NetUtils.getLocalIP();
+        String localIP = CONFIG_MANAGER.getLocalIP();
+//        String localIP = NetUtils.getLocalIP();
         if(StringUtils.isBlank(localIP)) {
             throw new IllegalArgumentException(String.format("ServiceRegistry: can not get local IP"));
         } else {
