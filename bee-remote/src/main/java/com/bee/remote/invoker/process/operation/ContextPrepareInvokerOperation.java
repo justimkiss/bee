@@ -5,6 +5,8 @@ import com.bee.remote.common.codec.domain.InvocationRequest;
 import com.bee.remote.common.codec.domain.InvocationResponse;
 import com.bee.remote.invoker.config.InvokerConfig;
 import com.bee.remote.invoker.domain.InvokerContext;
+import com.jeoy.bee.monitor.Monitor;
+import com.jeoy.bee.monitor.MonitorManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -13,6 +15,7 @@ import org.apache.log4j.Logger;
 public class ContextPrepareInvokerOperation extends InvocationInvokerOperation {
 
     private static final Logger LOGGER = Logger.getLogger(ContextPrepareInvokerOperation.class);
+    private static final Monitor MONITOR = MonitorManager.getMonitor();
 
     @Override
     public InvocationResponse invoke(InvokerContext invokerContext) throws Exception {

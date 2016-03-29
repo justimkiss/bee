@@ -8,6 +8,8 @@ import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.callback.impl.CallBackFuture;
 import com.bee.remote.invoker.listener.ClusterListenerManager;
 import com.bee.remote.invoker.utils.InvokerUtils;
+import com.jeoy.bee.monitor.Monitor;
+import com.jeoy.bee.monitor.MonitorManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
@@ -24,6 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class HeartBeatTask implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(HeartBeatTask.class);
+    private static final Monitor MONITOR = MonitorManager.getMonitor();
     private static final String HEART_TASK_SERVICE = "BeeHeartBeatService";
     private static final String HEART_TASK_METHOD = "heartBeat";
     private static final int heartBeatHealthCount = 5;

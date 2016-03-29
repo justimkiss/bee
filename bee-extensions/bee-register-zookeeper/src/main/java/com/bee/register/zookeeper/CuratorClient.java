@@ -3,6 +3,8 @@ package com.bee.register.zookeeper;
 
 import com.bee.common.thread.DefaultThreadFactory;
 import com.bee.register.zookeeper.curator.CuratorEventListener;
+import com.jeoy.bee.monitor.Monitor;
+import com.jeoy.bee.monitor.MonitorManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -25,6 +27,7 @@ public class CuratorClient {
 
     private static final Logger LOGGER = Logger.getLogger(CuratorClient.class);
     private static final String CHARSET_UTF8 = "UTF-8";
+    private static final Monitor MONITOR = MonitorManager.getMonitor();
     private CuratorFramework client;
     private static ExecutorService curatorEventThreadPool = Executors.newCachedThreadPool(
             new DefaultThreadFactory("Bee-curator-event-listener"));
@@ -44,6 +47,7 @@ public class CuratorClient {
                 if(LOGGER.isInfoEnabled())
                     LOGGER.info("zookeeper client status change to: " + newState.toString());
                 // TODO 连接状态变化更新
+                MONITOR.logEvent("Bee.registry", "zookeeper:" + newState.name().toLowerCase(), "");
             }
         });
         newClient.getCuratorListenable().addListener(new CuratorEventListener(this), curatorEventThreadPool);
@@ -55,8 +59,10 @@ public class CuratorClient {
         if(isConnect) {
             if(LOGGER.isInfoEnabled())
                 LOGGER.info("CuratorClient: already connected");
+            MONITOR.logEvent("Bee.registry", "zookeeper:rebuild_success", "");
         } else {
             LOGGER.error("CuratorClient: failed to connect zookeeper server");
+            MONITOR.logEvent("Bee.registry", "zookeeper:rebuild_failure", "");
         }
     }
 

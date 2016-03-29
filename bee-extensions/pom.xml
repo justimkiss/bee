@@ -13,6 +13,7 @@
     <modules>
         <module>bee-register-zookeeper</module>
         <module>bee-remote-netty</module>
+        <module>bee-monitor-cat</module>
     </modules>
 
     <dependencies>

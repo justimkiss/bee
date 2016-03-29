@@ -5,6 +5,8 @@ import com.bee.common.domain.HostInfo;
 import com.bee.common.extension.ExtensionLoader;
 import com.bee.register.config.DefaultRegisterConfigManager;
 import com.bee.register.config.RegisterConfigManager;
+import com.jeoy.bee.monitor.Monitor;
+import com.jeoy.bee.monitor.MonitorManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -21,6 +23,7 @@ public class RegisterManager {
     private static RegisterManager registerManager = new RegisterManager();
     private static final Register REGISTER = ExtensionLoader.getExtension(Register.class);
     private static final RegisterConfigManager REGISTER_CONFIG_MANAGER = new DefaultRegisterConfigManager();
+    private static final Monitor MONITOR = MonitorManager.getMonitor();
     /**
      * key: serviceurl
      * value: set<hostInfo>
@@ -92,6 +95,7 @@ public class RegisterManager {
      */
     public void registerService(String serviceName, String serverAddress, int weight) {
         REGISTER.registerService(serviceName, serverAddress, weight);
+        MONITOR.logEvent("BeeService.register", serviceName, "serverAddress: " + serverAddress + ", weight: " + weight);
     }
 
     /**
@@ -101,6 +105,7 @@ public class RegisterManager {
      */
     public void unregisterService(String serviceName, String serverAddress) {
         REGISTER.unregisterService(serviceName, serverAddress);
+        MONITOR.logEvent("BeeService.unregister", serviceName, "serverAddress: " + serverAddress);
     }
 
     /**

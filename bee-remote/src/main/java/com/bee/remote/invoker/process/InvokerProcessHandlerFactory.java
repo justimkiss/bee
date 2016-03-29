@@ -21,7 +21,6 @@ public final class InvokerProcessHandlerFactory {
 
     public static void init() {
         if(!isInit) {
-            // TODO register service invocation operation
             registerProcessOperation(new ClusterInvokerOperation());
             registerProcessOperation(new GatewayInvokerOperation());
             registerProcessOperation(new ContextPrepareInvokerOperation());

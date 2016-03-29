@@ -8,6 +8,8 @@ import com.bee.remote.invoker.Client;
 import com.bee.remote.invoker.callback.CallBack;
 import com.bee.remote.invoker.callback.CallFuture;
 import com.bee.remote.invoker.utils.InvokerUtils;
+import com.jeoy.bee.monitor.Monitor;
+import com.jeoy.bee.monitor.MonitorManager;
 import org.apache.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
@@ -18,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class CallBackFuture implements CallBack, CallFuture {
 
     private static final Logger LOGGER = Logger.getLogger(CallBackFuture.class);
-
+    private static final Monitor MONITOR = MonitorManager.getMonitor();
     protected InvocationResponse response;
     protected volatile boolean done;
     protected volatile boolean canceled;
@@ -69,8 +71,11 @@ public class CallBackFuture implements CallBack, CallFuture {
             // TODO
             // processContext()
             if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-                LOGGER.error(String.format("remote call exception\r\nrequest: %s\r\nhost: %s\r\nresponse: %s",
-                        this.request, this.client.getAddress(), this.response), InvokerUtils.toRpcException(response));
+                Throwable e = InvokerUtils.toRpcException(response);
+                String errMsg = String.format("remote call exception\r\nrequest: %s\r\nhost: %s\r\nresponse: %s",
+                                        this.request, this.client.getAddress(), this.response);
+                LOGGER.error(errMsg, e);
+                MONITOR.logError(errMsg, e);
             }
         }
         return this.response;

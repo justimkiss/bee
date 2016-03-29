@@ -49,6 +49,11 @@
             <artifactId>bee-remote-netty</artifactId>
             <version>${bee-remote-netty.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.jeoy</groupId>
+            <artifactId>bee-monitor-cat</artifactId>
+            <version>${bee-monitor-cat.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -75,6 +80,7 @@
                                     <include>com.jeoy:bee-net</include>
                                     <include>com.jeoy:bee-register-zookeeper</include>
                                     <include>com.jeoy:bee-remote-netty</include>
+                                    <include>com.jeoy:bee-monitor-cat</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
