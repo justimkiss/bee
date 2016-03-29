@@ -27,8 +27,11 @@ public final class Constants {
     // ServiceMethodCache
     public static final String TRANSFER_NULL = "null";
 
-    public static final String ZOOKEEPER_CONFIG_PATH = "config/zookeeper/zookeeper.properties";
-    public static final String BEE_CONFIG_PATH = "config/bee/bee.properties";
+    public static final String ZOOKEEPER_CONFIG_PATH = "classpath:config/zookeeper/zookeeper.properties";
+    public static final String GLOBAL_ZOOKEEPER_CONFIG_PATH = "/data/webapps/config/zookeeper/zookeeper.properties";
+    public static final String BEE_CONFIG_PATH = "classpath:config/bee/bee.properties";
+    public static final String GLOBAL_BEE_CONFIG_PATH = "/data/webapps/config/bee/bee.properties";
+
     // curatorParams default config
     public static final String ZOOKEEPER_DEFAULT_NAMESPACE = "bee/server";
     public static final Integer ZOOKEEPER_DEFAULT_RETRY_TIME = 300;

@@ -1,5 +1,6 @@
 package com.bee.config.file;
 
+import com.bee.common.constants.Constants;
 import com.bee.config.ConfigManager;
 import com.bee.config.utills.PropertiesUtils;
 import org.apache.log4j.Logger;
@@ -16,10 +17,10 @@ import java.util.Map;
 public class PropertiesFileConfigManager implements ConfigManager {
 
     private static final Logger LOGGER = Logger.getLogger(PropertiesFileConfigManager.class);
-    private static final String PROPERTIES_PATH = "classpath:config/bee/bee.properties";
-    private static final String GLOBAL_PROPERTIES_PATH = "/data/webapps/config/bee/bee.properties";
+    private static final String PROPERTIES_PATH = Constants.BEE_CONFIG_PATH;
+    private static final String GLOBAL_PROPERTIES_PATH = Constants.GLOBAL_BEE_CONFIG_PATH;
 
-    private String ip = null;
+    private String ip;
     private Map<String, String> config;
 
     public PropertiesFileConfigManager() {
@@ -28,12 +29,11 @@ public class PropertiesFileConfigManager implements ConfigManager {
 
     private void init() {
         config = new HashMap<String, String>();
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         File file = null;
         try {
             file = ResourceUtils.getFile(PROPERTIES_PATH);
         } catch (FileNotFoundException e) {
-            LOGGER.warn(String.format("file not found, path:[%s]", PROPERTIES_PATH), e);
+            LOGGER.warn(String.format("file not found, path:[%s]", PROPERTIES_PATH));
             file = new File(GLOBAL_PROPERTIES_PATH);
             if(!file.exists() || !file.isFile()) {
                 LOGGER.warn(String.format("file not found, path:[%s]", PROPERTIES_PATH));
@@ -42,11 +42,12 @@ public class PropertiesFileConfigManager implements ConfigManager {
         }
         if(file == null) return;
         PropertiesUtils.convertPropertiesToMap(config, file);
-        ip = (String) config.get("ip");
+        ip = config.get("ip");
     }
 
+
     @Override
-    public String getServiceAddress() {
+    public String getLocalIP() {
         return ip;
     }
 
