@@ -2,9 +2,9 @@ package com.bee.register.config;
 
 import com.bee.common.constants.Constants;
 import org.apache.log4j.Logger;
+import org.springframework.util.ResourceUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -16,21 +16,23 @@ public class DefaultRegisterConfigManager implements RegisterConfigManager {
 
     private static final String ZOOKEEPER_CONFIG_PATH = Constants.ZOOKEEPER_CONFIG_PATH;
     private static final String GLOBAL_ZOOKEEPER_CONFIG_PATH = Constants.GLOBAL_ZOOKEEPER_CONFIG_PATH;
-    private static final ClassLoader CLASS_LOADER = DefaultRegisterConfigManager.class.getClassLoader();
 
     @Override
     public Properties getRegisterConfig() {
-        InputStream is = CLASS_LOADER.getResourceAsStream(ZOOKEEPER_CONFIG_PATH);
-        if (is == null) {
-            LOGGER.warn("not find resource: " + ZOOKEEPER_CONFIG_PATH);
-            is = CLASS_LOADER.getResourceAsStream(GLOBAL_ZOOKEEPER_CONFIG_PATH);
-            if (is == null) {
+        File file = null;
+        try {
+            file = ResourceUtils.getFile(ZOOKEEPER_CONFIG_PATH);
+        } catch (FileNotFoundException e) {
+            LOGGER.warn(String.format("file not found, path:[%s]", ZOOKEEPER_CONFIG_PATH));
+            file = new File(GLOBAL_ZOOKEEPER_CONFIG_PATH);
+            if(!file.exists() || !file.isFile()) {
+                LOGGER.warn(String.format("file not found, path:[%s]", GLOBAL_ZOOKEEPER_CONFIG_PATH));
                 throw new IllegalArgumentException("not find resource: " + GLOBAL_ZOOKEEPER_CONFIG_PATH);
             }
         }
         Properties properties = new Properties();
         try {
-            properties.load(is);
+            properties.load(new FileInputStream(file));
         } catch (IOException e) {
             throw new IllegalArgumentException("load resource error: ", e);
         }
