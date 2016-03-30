@@ -148,10 +148,11 @@ public class ServiceMethodCache {
             methodMap = new HashMap<Integer, List<ServiceMethodDesc>>();
             METHOD_CACHES.put(method.getName(), methodMap);
         }
-        List<ServiceMethodDesc> methodList = methodMap.get(method.getParameterCount());
+        int parameterCount = method.getParameterTypes().length;
+        List<ServiceMethodDesc> methodList = methodMap.get(parameterCount);
         if(methodList == null) {
             methodList = new ArrayList<ServiceMethodDesc>();
-            methodMap.put(method.getParameterCount(), methodList);
+            methodMap.put(parameterCount, methodList);
         }
         methodList.add(new ServiceMethodDesc(method, service));
         methodSize++;

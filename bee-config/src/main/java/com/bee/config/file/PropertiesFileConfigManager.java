@@ -1,7 +1,7 @@
 package com.bee.config.file;
 
 import com.bee.common.constants.Constants;
-import com.bee.config.ConfigManager;
+import com.bee.config.AbstractConfigManager;
 import com.bee.config.utills.PropertiesUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.ResourceUtils;
@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by jeoy.zhou on 12/7/15.
  */
-public class PropertiesFileConfigManager implements ConfigManager {
+public class PropertiesFileConfigManager extends AbstractConfigManager {
 
     private static final Logger LOGGER = Logger.getLogger(PropertiesFileConfigManager.class);
     private static final String PROPERTIES_PATH = Constants.BEE_CONFIG_PATH;
@@ -46,10 +46,6 @@ public class PropertiesFileConfigManager implements ConfigManager {
     }
 
 
-    @Override
-    public String getLocalIP() {
-        return ip;
-    }
 
     @Override
     public String getConfig(String key) {
@@ -59,5 +55,10 @@ public class PropertiesFileConfigManager implements ConfigManager {
     @Override
     public String toString() {
         return "PropertiesFileConfigManager";
+    }
+
+    @Override
+    protected String doGetLocalIP() {
+        return ip;
     }
 }

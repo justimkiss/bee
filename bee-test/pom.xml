@@ -29,41 +29,41 @@
         </dependency>
         <dependency>
             <groupId>com.jeoy</groupId>
-            <artifactId>bee-common</artifactId>
+            <artifactId>bee-all</artifactId>
             <version>${bee-common.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.jeoy</groupId>
-            <artifactId>bee-config</artifactId>
-            <version>${bee-config.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jeoy</groupId>
-            <artifactId>bee-register-zookeeper</artifactId>
-            <version>${bee-register-zookeeper.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jeoy</groupId>
-            <artifactId>bee-remote</artifactId>
-            <version>${bee-remote.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jeoy</groupId>
-            <artifactId>bee-register</artifactId>
-            <version>${bee-register.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jeoy</groupId>
-            <artifactId>bee-remote-netty</artifactId>
-            <version>${bee-remote-netty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dyuproject.protostuff</groupId>
-            <artifactId>protostuff-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.dyuproject.protostuff</groupId>
-            <artifactId>protostuff-runtime</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.jeoy</groupId>-->
+            <!--<artifactId>bee-config</artifactId>-->
+            <!--<version>${bee-config.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.jeoy</groupId>-->
+            <!--<artifactId>bee-register-zookeeper</artifactId>-->
+            <!--<version>${bee-register-zookeeper.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.jeoy</groupId>-->
+            <!--<artifactId>bee-remote</artifactId>-->
+            <!--<version>${bee-remote.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.jeoy</groupId>-->
+            <!--<artifactId>bee-register</artifactId>-->
+            <!--<version>${bee-register.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.jeoy</groupId>-->
+            <!--<artifactId>bee-remote-netty</artifactId>-->
+            <!--<version>${bee-remote-netty.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.dyuproject.protostuff</groupId>-->
+            <!--<artifactId>protostuff-core</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.dyuproject.protostuff</groupId>-->
+            <!--<artifactId>protostuff-runtime</artifactId>-->
+        <!--</dependency>-->
     </dependencies>
 </project>

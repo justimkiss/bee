@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -22,10 +22,10 @@ public class DefaultClusterListener implements ClusterListener, Disposable {
     private static final Logger LOGGER = Logger.getLogger(DefaultClusterListener.class);
     private static final long DEFAULT_WAIT = 3000;
     private ScheduledThreadPoolExecutor closeExecutor;
-    private Map<String, List<Client>> workingClients;
-    private Map<String, Client> allClients;
+    private ConcurrentHashMap<String, List<Client>> workingClients;
+    private ConcurrentHashMap<String, Client> allClients;
 
-    public DefaultClusterListener(Map<String, List<Client>> workingClients, Map<String, Client> allClients) {
+    public DefaultClusterListener(ConcurrentHashMap<String, List<Client>> workingClients, ConcurrentHashMap<String, Client> allClients) {
         this.workingClients = workingClients;
         this.allClients = allClients;
         this.closeExecutor = new ScheduledThreadPoolExecutor(3);

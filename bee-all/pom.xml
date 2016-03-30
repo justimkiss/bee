@@ -51,9 +51,14 @@
         </dependency>
         <dependency>
             <groupId>com.jeoy</groupId>
-            <artifactId>bee-monitor-cat</artifactId>
-            <version>${bee-monitor-cat.version}</version>
+            <artifactId>bee-monitor</artifactId>
+            <version>${bee-monitor.version}</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.jeoy</groupId>-->
+            <!--<artifactId>bee-monitor-cat</artifactId>-->
+            <!--<version>${bee-monitor-cat.version}</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <distributionManagement>
@@ -89,12 +94,13 @@
                                 <includes>
                                     <include>com.jeoy:bee-common</include>
                                     <include>com.jeoy:bee-config</include>
-                                    <include>com.jeoy:bee-registry</include>
+                                    <include>com.jeoy:bee-register</include>
                                     <include>com.jeoy:bee-remote</include>
                                     <include>com.jeoy:bee-net</include>
                                     <include>com.jeoy:bee-register-zookeeper</include>
                                     <include>com.jeoy:bee-remote-netty</include>
-                                    <include>com.jeoy:bee-monitor-cat</include>
+                                    <include>com.jeoy:bee-monitor</include>
+                                    <!--<include>com.jeoy:bee-monitor-cat</include>-->
                                 </includes>
                             </artifactSet>
                         </configuration>

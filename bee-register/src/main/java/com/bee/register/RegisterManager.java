@@ -28,12 +28,12 @@ public class RegisterManager {
      * key: serviceurl
      * value: set<hostInfo>
      */
-    private static final Map<String, Set<HostInfo>> SERVICE_ADDRESS_CACHE = new ConcurrentHashMap<String, Set<HostInfo>>();
+    private static final ConcurrentHashMap<String, Set<HostInfo>> SERVICE_ADDRESS_CACHE = new ConcurrentHashMap<String, Set<HostInfo>>();
     /**
      * key: host:port
      * value: hostInfo
      */
-    private static final Map<String, HostInfo> ALL_REFERENCED_CACHE = new ConcurrentHashMap<String, HostInfo>();
+    private static final ConcurrentHashMap<String, HostInfo> ALL_REFERENCED_CACHE = new ConcurrentHashMap<String, HostInfo>();
     private static Properties properties;
 
     private static boolean isInit = false;
