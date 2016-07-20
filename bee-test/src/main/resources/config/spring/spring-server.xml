@@ -5,21 +5,21 @@
        xsi:schemaLocation="
               http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
               http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
-       <context:component-scan base-package="com.bee.test.component" />
-       <context:annotation-config/>
+    <context:component-scan base-package="com.bee.test.component"/>
+    <context:annotation-config/>
 
-       <bean id="serviceRegister" class="com.bee.remote.spring.ServiceRegistry" init-method="init" lazy-init="false">
-              <property name="port" value="3333"/>
-              <property name="weight" value="10"/>
-              <property name="services">
-                     <map>
-                            <entry key="com.bee.test.component.MemberService_1.0.0" value-ref="memberService" />
-                     </map>
-              </property>
-       </bean>
+    <bean id="serviceRegister" class="com.bee.remote.spring.ServiceRegistry" init-method="init" lazy-init="false">
+        <property name="port" value="3333"/>
+        <property name="weight" value="10"/>
+        <property name="services">
+            <map>
+                <entry key="com.bee.test.component.MemberService_1.0.0" value-ref="memberService"/>
+            </map>
+        </property>
+    </bean>
 
-       <bean id="memberService" class="com.bee.test.component.impl.MemberServiceImpl">
-              <property name="args" value="3333"/>
-       </bean>
+    <bean id="memberService" class="com.bee.test.component.impl.MemberServiceImpl">
+        <property name="args" value="3333"/>
+    </bean>
 
 </beans>
